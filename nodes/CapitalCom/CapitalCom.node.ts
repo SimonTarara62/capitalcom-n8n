@@ -12,6 +12,9 @@ import { executeAccount, accountFields, accountOperations } from './actions/acco
 import { executeMarket, marketFields, marketOperations } from './actions/market';
 import { executeSession, sessionFields, sessionOperations } from './actions/session';
 import { executeWatchlist, watchlistFields, watchlistOperations } from './actions/watchlist';
+import { executePosition, positionFields, positionOperations } from './actions/position';
+import { executeOrder, orderFields, orderOperations } from './actions/order';
+import { executeConfirmation, confirmationFields, confirmationOperations } from './actions/confirmation';
 
 export class CapitalCom implements INodeType {
 	description: INodeTypeDescription = {
@@ -34,7 +37,10 @@ export class CapitalCom implements INodeType {
 				noDataExpression: true,
 				options: [
 					{ name: 'Account', value: 'account' },
+					{ name: 'Confirmation', value: 'confirmation' },
 					{ name: 'Market', value: 'market' },
+					{ name: 'Order', value: 'order' },
+					{ name: 'Position', value: 'position' },
 					{ name: 'Session', value: 'session' },
 					{ name: 'Watchlist', value: 'watchlist' },
 				],
@@ -48,6 +54,12 @@ export class CapitalCom implements INodeType {
 			...sessionFields,
 			watchlistOperations,
 			...watchlistFields,
+			positionOperations,
+			...positionFields,
+			orderOperations,
+			...orderFields,
+			confirmationOperations,
+			...confirmationFields,
 		],
 	};
 
@@ -68,6 +80,12 @@ export class CapitalCom implements INodeType {
 					result = await executeAccount(client, this, i);
 				} else if (resource === 'watchlist') {
 					result = await executeWatchlist(client, this, i);
+				} else if (resource === 'position') {
+					result = await executePosition(client, this, i);
+				} else if (resource === 'order') {
+					result = await executeOrder(client, this, i);
+				} else if (resource === 'confirmation') {
+					result = await executeConfirmation(client, this, i);
 				} else {
 					throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`);
 				}

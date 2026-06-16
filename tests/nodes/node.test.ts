@@ -51,7 +51,10 @@ it('exposes the expected node description', () => {
 	const resource = node.description.properties.find((p) => p.name === 'resource');
 	expect((resource?.options ?? []).map((o) => (o as { value: string }).value).sort()).toEqual([
 		'account',
+		'confirmation',
 		'market',
+		'order',
+		'position',
 		'session',
 		'watchlist',
 	]);
@@ -126,4 +129,62 @@ it('routes a Watchlist: Create through the node', async () => {
 	expect(out).toEqual([
 		[{ json: { watchlistId: 'w9', status: 'SUCCESS' }, pairedItem: { item: 0 } }],
 	]);
+});
+
+it('routes a Position: Open through the node and returns the deal reference', async () => {
+	const node = new CapitalCom();
+	const http = async (opts: Record<string, unknown>) => {
+		const url = String(opts.url);
+		if (url.endsWith('/session') && opts.method === 'POST') {
+			return { statusCode: 200, headers: { CST: 'C', 'X-SECURITY-TOKEN': 'T' }, body: {} };
+		}
+		if (url.endsWith('/positions') && opts.method === 'POST') {
+			return { statusCode: 200, headers: {}, body: { dealReference: 'R1' } };
+		}
+		return { statusCode: 404, headers: {}, body: { errorCode: 'not.found' } };
+	};
+	const ctx = fakeExecute({
+		params: {
+			resource: 'position',
+			operation: 'open',
+			epic: 'GOLD',
+			direction: 'BUY',
+			size: 1,
+			stopsLimits: {},
+			dryRun: false,
+			waitForConfirmation: false,
+		},
+		credentials: { apiKey: 'K', identifier: 'me@example.com', password: 'p', environment: 'demo' },
+		httpRequest: http,
+	});
+	const out = await node.execute.call(ctx);
+	expect(out).toEqual([[{ json: { dealReference: 'R1' }, pairedItem: { item: 0 } }]]);
+});
+
+it('routes a Position: Open Dry Run without any POST', async () => {
+	const node = new CapitalCom();
+	const calls: string[] = [];
+	const http = async (opts: Record<string, unknown>) => {
+		calls.push(`${opts.method} ${String(opts.url)}`);
+		if (String(opts.url).endsWith('/session') && opts.method === 'POST') {
+			return { statusCode: 200, headers: { CST: 'C', 'X-SECURITY-TOKEN': 'T' }, body: {} };
+		}
+		return { statusCode: 200, headers: {}, body: {} };
+	};
+	const ctx = fakeExecute({
+		params: {
+			resource: 'position',
+			operation: 'open',
+			epic: 'GOLD',
+			direction: 'BUY',
+			size: 1,
+			stopsLimits: {},
+			dryRun: true,
+		},
+		credentials: { apiKey: 'K', identifier: 'me@example.com', password: 'p', environment: 'demo' },
+		httpRequest: http,
+	});
+	const out = (await node.execute.call(ctx)) as Array<Array<{ json: { dryRun?: boolean } }>>;
+	expect(out[0][0].json.dryRun).toBe(true);
+	expect(calls.some((c) => c.includes('/positions'))).toBe(false); // never POSTed
 });
