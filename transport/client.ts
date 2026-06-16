@@ -37,6 +37,14 @@ function header(headers: Record<string, string>, name: string): string | undefin
 	return undefined;
 }
 
+/** Exported for unit-testing; determines which rate-limit bucket to use. */
+export function rateLimitKind(method: HttpMethod, path: string): RateLimitKind {
+	const isWrite = method === 'POST' || method === 'PUT' || method === 'DELETE';
+	if (isWrite && path.startsWith('/session')) return 'session';
+	if (isWrite && (path.startsWith('/positions') || path.startsWith('/workingorders'))) return 'trading';
+	return 'global';
+}
+
 export class CapitalClient {
 	private readonly creds: CapitalCredentials;
 	private readonly requester: Requester;
@@ -123,22 +131,15 @@ export class CapitalClient {
 		};
 	}
 
-	private rateLimitKind(method: HttpMethod, path: string): RateLimitKind {
-		const isTrade =
-			(method === 'POST' || method === 'PUT' || method === 'DELETE') &&
-			(path.startsWith('/positions') || path.startsWith('/workingorders'));
-		return isTrade ? 'trading' : 'global';
-	}
-
 	async request(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<unknown> {
 		const retryOnAuth = options.retryOnAuth ?? true;
 		let tokens = await this.ensureLoggedIn();
 		let authRetried = false;
 
-		for (;;) {
-			const ok = await this.rateLimiter.acquire(this.rateLimitKind(method, path));
-			if (!ok) throw new CapitalApiError('Rate limit timeout', 429);
+		const ok = await this.rateLimiter.acquire(rateLimitKind(method, path));
+		if (!ok) throw new CapitalApiError('Rate limit timeout', 429);
 
+		for (;;) {
 			const res: HttpResponse = await this.requester({
 				method,
 				url: this.url(path),
