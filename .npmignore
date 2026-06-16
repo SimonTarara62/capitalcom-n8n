@@ -1,0 +1,14 @@
+# Source & config — only dist is published
+*.ts
+!*.d.ts
+tsconfig.json
+.eslintrc.js
+.prettierrc.js
+gulpfile.js
+docs/
+tests/
+.github/
+.gitignore
+.npmignore
+*.tsbuildinfo
+coverage/
