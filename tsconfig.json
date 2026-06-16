@@ -16,7 +16,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "useUnknownInCatchVariables": false,
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
   "include": ["index.ts", "credentials/**/*", "nodes/**/*", "transport/**/*"],
   "exclude": ["node_modules", "dist", "tests"]

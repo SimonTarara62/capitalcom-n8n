@@ -29,7 +29,7 @@
     "format": "prettier nodes credentials transport --write",
     "lint": "eslint nodes credentials transport package.json --no-error-on-unmatched-pattern",
     "lintfix": "eslint nodes credentials transport package.json --fix --no-error-on-unmatched-pattern",
-    "test": "echo \"no tests yet\" && exit 0",
+    "test": "jest",
     "prepublishOnly": "npm run build && npm run lint"
   },
   "files": [
@@ -47,13 +47,16 @@
     "n8n-workflow": "*"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.19.21",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
     "gulp": "^5.0.0",
+    "jest": "^29.7.0",
     "n8n-workflow": "^1.70.0",
     "prettier": "^3.3.3",
+    "ts-jest": "^29.4.11",
     "typescript": "^5.6.3"
   }
 }
