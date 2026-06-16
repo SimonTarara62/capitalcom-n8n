@@ -43,6 +43,37 @@ it('does NOT retry a 401 on a non-GET; throws CapitalAuthError', async () => {
 	expect(req.calls).toHaveLength(1); // no re-login attempt
 });
 
+it('re-logs-in once and retries a GET that returns 403', async () => {
+	const req = new FakeRequester().enqueue(
+		{ statusCode: 403, headers: {}, body: { errorCode: 'error.invalid.session.token' } },
+		loginResponse('C3', 'T3'),
+		{ statusCode: 200, headers: {}, body: { ok: true } },
+	);
+	const client = freshClient(req);
+
+	const body = await client.request('GET', '/accounts');
+
+	expect(body).toEqual({ ok: true });
+	expect(req.calls[1].url).toContain('/session'); // the re-login
+	expect(req.calls[2].headers.CST).toBe('C3'); // retried with new token
+});
+
+it('surfaces CapitalAuthError from login() when the initial POST /session returns 401, does not loop', async () => {
+	const req = new FakeRequester().enqueue({
+		statusCode: 401,
+		headers: {},
+		body: { errorCode: 'invalid.credentials' },
+	});
+	// fresh client with NO cached session — forces login path
+	const store = new MemoryStore();
+	const client = new CapitalClient({ credentials: creds, requester: req.fn, store, now: () => 0 });
+
+	await expect(client.request('GET', '/accounts')).rejects.toBeInstanceOf(CapitalAuthError);
+	// Only one request (the POST /session); no retry
+	expect(req.calls).toHaveLength(1);
+	expect(req.calls[0].url).toContain('/session');
+});
+
 it('maps a 400 errorCode body to CapitalApiError', async () => {
 	// Each assertion issues its own request, so build a fresh client per call
 	// (the FakeRequester queue is single-use).

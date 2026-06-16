@@ -24,7 +24,11 @@ export function extractErrorMessage(status: number, body: unknown): string {
 		if (typeof obj.errorCode === 'string') return obj.errorCode;
 		if (typeof obj.message === 'string') return obj.message;
 		if (typeof obj.error === 'string') return obj.error;
-		return JSON.stringify(obj);
+		try {
+			return JSON.stringify(obj);
+		} catch {
+			return `HTTP ${status}`;
+		}
 	}
 	if (typeof body === 'string' && body.length > 0) {
 		return body.length > 200 ? `${body.slice(0, 200)}...` : body;

@@ -33,3 +33,13 @@ describe('error classes', () => {
 		expect(e.statusCode).toBe(401);
 	});
 });
+
+describe('extractErrorMessage — circular reference body', () => {
+	it('returns HTTP <status> instead of throwing when body has a circular reference', () => {
+		const circular: Record<string, unknown> = {};
+		circular.self = circular; // circular ref: no errorCode/message/error keys
+		// Must not throw; must return fallback
+		expect(() => extractErrorMessage(400, circular)).not.toThrow();
+		expect(extractErrorMessage(400, circular)).toBe('HTTP 400');
+	});
+});
