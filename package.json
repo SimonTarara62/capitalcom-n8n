@@ -40,8 +40,12 @@
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
-    "credentials": [],
-    "nodes": []
+    "credentials": [
+      "dist/credentials/CapitalComApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/CapitalCom/CapitalCom.node.js"
+    ]
   },
   "peerDependencies": {
     "n8n-workflow": "*"

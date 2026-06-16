@@ -4,7 +4,6 @@ import {
 	type INodeExecutionData,
 	type INodeType,
 	type INodeTypeDescription,
-	NodeConnectionTypes,
 	NodeOperationError,
 } from 'n8n-workflow';
 
@@ -22,8 +21,8 @@ export class CapitalCom implements INodeType {
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with the Capital.com Open API',
 		defaults: { name: 'Capital.com' },
-		inputs: [NodeConnectionTypes.Main],
-		outputs: [NodeConnectionTypes.Main],
+		inputs: ['main'],
+		outputs: ['main'],
 		credentials: [{ name: 'capitalComApi', required: true }],
 		properties: [
 			{

@@ -45,11 +45,11 @@ export const marketFields: INodeProperties[] = [
 		description: 'The market EPIC, e.g. GOLD',
 	},
 	{
-		// Price resolutions are ordered shortest→longest on purpose, not alphabetically.
-		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		displayName: 'Resolution',
 		name: 'resolution',
 		type: 'options',
+		// Price resolutions are ordered shortest→longest on purpose, not alphabetically.
+		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
 			{ name: 'Minute', value: 'MINUTE' },
 			{ name: 'Minute 5', value: 'MINUTE_5' },

@@ -14,8 +14,6 @@ module.exports = {
         'n8n-nodes-base/community-package-json-license-not-default': 'off',
         // The name is intentional (not the starter template default)
         'n8n-nodes-base/community-package-json-name-still-default': 'off',
-        // M0 scaffold — nodes array is intentionally empty until M2
-        'n8n-nodes-base/community-package-json-n8n-nodes-empty': 'off',
       },
     },
     {
