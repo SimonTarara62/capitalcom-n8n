@@ -1,0 +1,55 @@
+{
+  "name": "n8n-nodes-capitalcom",
+  "version": "0.1.0",
+  "description": "Unofficial n8n community node for the Capital.com Open API (trading, market data, accounts, watchlists, streaming).",
+  "keywords": [
+    "n8n-community-node-package",
+    "capital.com",
+    "trading",
+    "cfd",
+    "market-data",
+    "finance"
+  ],
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/SimonTarara62/n8n-nodes-capitalcom",
+  "author": {
+    "name": "Simon Tarara"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SimonTarara62/n8n-nodes-capitalcom.git"
+  },
+  "engines": {
+    "node": ">=20.15"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && gulp build:icons",
+    "dev": "tsc --watch",
+    "format": "prettier nodes credentials transport --write",
+    "lint": "eslint nodes credentials transport package.json",
+    "lintfix": "eslint nodes credentials transport package.json --fix",
+    "test": "echo \"no tests yet\" && exit 0",
+    "prepublishOnly": "npm run build && npm run lint"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [],
+    "nodes": []
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.3",
+    "gulp": "^5.0.0",
+    "n8n-workflow": "^1.70.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  }
+}
