@@ -18,8 +18,7 @@ export function safetyFields(operations: string[]): INodeProperties[] {
 			type: 'boolean',
 			default: false,
 			displayOptions: { show },
-			// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-			description: 'Validate and return the request WITHOUT sending it to the broker',
+			description: 'Whether to validate and return the request without sending it to the broker',
 		},
 		{
 			displayName: 'Max Size Guard',

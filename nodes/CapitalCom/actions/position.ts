@@ -89,8 +89,7 @@ export const positionFields: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: { show: { resource: ['position'], operation: ['open'] } },
-		// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-		description: 'Poll the deal confirmation and attach it to the result',
+		description: 'Whether to poll the deal confirmation and attach it to the result',
 	},
 	{
 		displayName: 'Limit',

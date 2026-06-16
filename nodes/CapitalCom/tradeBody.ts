@@ -17,7 +17,7 @@ export function buildStopsLimits(ctx: IExecuteFunctions, i: number): IDataObject
 	if (c.trailingStop) body.trailingStop = true;
 	for (const key of STOP_PROFIT_KEYS) {
 		const v = c[key] as number | undefined;
-		if (v) body[key] = v;
+		if (v) body[key] = v; // 0 is treated as "unset" — a v1 simplification (a zero level can't be expressed)
 	}
 	return body;
 }

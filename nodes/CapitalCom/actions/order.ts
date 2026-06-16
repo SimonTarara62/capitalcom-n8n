@@ -114,8 +114,7 @@ export const orderFields: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: { show: { resource: ['order'], operation: ['create'] } },
-		// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-		description: 'Poll the deal confirmation and attach it to the result',
+		description: 'Whether to poll the deal confirmation and attach it to the result',
 	},
 	{
 		displayName: 'Limit',
@@ -169,7 +168,7 @@ export async function executeOrder(
 			const body = buildStopsLimits(ctx, i);
 			const level = ctx.getNodeParameter('level', i, 0) as number;
 			const gtd = ctx.getNodeParameter('goodTillDate', i, '') as string;
-			if (level) body.level = level;
+			if (level) body.level = level; // 0 is treated as "unset" — a v1 simplification (same convention as tradeBody.ts)
 			if (gtd) body.goodTillDate = gtd;
 			return client.request('PUT', `/workingorders/${encodeURIComponent(dealId)}`, { body });
 		}

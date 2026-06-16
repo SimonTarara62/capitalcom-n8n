@@ -78,3 +78,15 @@ it('Close → DELETE /positions/{dealId}', async () => {
 	await promise;
 	expect(client.calls[0].args.slice(0, 2)).toEqual(['DELETE', '/positions/D1']);
 });
+
+it('Open with waitForConfirmation → attaches confirmation to result', async () => {
+	const { promise } = run(
+		{ operation: 'open', epic: 'GOLD', direction: 'BUY', size: 1, stopsLimits: {}, dryRun: false, waitForConfirmation: true },
+		{
+			'POST /positions': { dealReference: 'R1' },
+			'GET /confirms/R1': { dealStatus: 'ACCEPTED' },
+		},
+	);
+	const out = (await promise) as { confirmation: { dealStatus: string; status: string } };
+	expect(out.confirmation.status).toBe('ACCEPTED');
+});
