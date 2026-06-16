@@ -30,6 +30,7 @@
     "lint": "eslint nodes credentials transport package.json --no-error-on-unmatched-pattern",
     "lintfix": "eslint nodes credentials transport package.json --fix --no-error-on-unmatched-pattern",
     "test": "jest",
+    "test:integration": "jest --config jest.integration.config.js",
     "prepublishOnly": "npm run build && npm run lint"
   },
   "files": [
@@ -54,6 +55,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22.19.21",
     "@typescript-eslint/parser": "^7.18.0",
+    "dotenv": "^16.6.1",
     "eslint": "^8.57.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
     "gulp": "^5.0.0",
