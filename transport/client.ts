@@ -12,7 +12,7 @@ import type {
 } from './types';
 
 const SESSION_MAX_AGE_MS = 540_000; // 9 minutes, matching the CLI
-const USER_AGENT = 'n8n-nodes-capitalcom (+https://github.com/SimonTarara62/n8n-nodes-capitalcom)';
+const USER_AGENT = 'n8n-nodes-capitalcom (+https://github.com/SimonTarara62/capitalcom-n8n)';
 
 export interface CapitalClientOptions {
 	credentials: CapitalCredentials;

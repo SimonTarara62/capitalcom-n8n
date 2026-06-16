@@ -11,13 +11,13 @@
     "finance"
   ],
   "license": "Apache-2.0",
-  "homepage": "https://github.com/SimonTarara62/n8n-nodes-capitalcom",
+  "homepage": "https://github.com/SimonTarara62/capitalcom-n8n",
   "author": {
     "name": "Simon Tarara"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SimonTarara62/n8n-nodes-capitalcom.git"
+    "url": "git+https://github.com/SimonTarara62/capitalcom-n8n.git"
   },
   "engines": {
     "node": ">=20.15"
