@@ -51,3 +51,13 @@ it('Delete → DELETE /watchlists/{id}, empty body → status deleted', async ()
 	expect(client.calls[0].args.slice(0, 2)).toEqual(['DELETE', '/watchlists/w1']);
 	expect(out).toEqual({ status: 'deleted' });
 });
+
+it('Remove Market → DELETE with real body passes through (no fallback)', async () => {
+	const { client, promise } = run(
+		{ operation: 'removeMarket', watchlistId: 'w1', epic: 'GOLD' },
+		{ 'DELETE /watchlists/w1/GOLD': { dealReference: 'X' } },
+	);
+	const out = await promise;
+	expect(client.calls[0].args.slice(0, 2)).toEqual(['DELETE', '/watchlists/w1/GOLD']);
+	expect(out).toEqual({ dealReference: 'X' });
+});

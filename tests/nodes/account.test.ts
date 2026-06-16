@@ -48,6 +48,31 @@ it('Set Preferences → rejects invalid leverages JSON', async () => {
 	await expect(promise).rejects.toThrow(/leverages must be valid json/i);
 });
 
+it('Set Preferences → rejects valid-JSON scalar (non-object leverages)', async () => {
+	const { promise } = run({ operation: 'setPreferences', hedgingMode: 'noChange', leverages: '20' });
+	await expect(promise).rejects.toThrow(/leverages must be a json object/i);
+});
+
+it('Set Preferences → hedging-only: PUT body has only hedgingMode', async () => {
+	const { client, promise } = run({ operation: 'setPreferences', hedgingMode: 'disabled', leverages: '' });
+	await promise;
+	expect(client.calls[0].args).toEqual(['PUT', '/accounts/preferences', { body: { hedgingMode: false } }]);
+});
+
+it('Set Preferences → leverages-only: PUT body has only leverages', async () => {
+	const { client, promise } = run({
+		operation: 'setPreferences',
+		hedgingMode: 'noChange',
+		leverages: '{"CURRENCIES":20}',
+	});
+	await promise;
+	expect(client.calls[0].args).toEqual([
+		'PUT',
+		'/accounts/preferences',
+		{ body: { leverages: { CURRENCIES: 20 } } },
+	]);
+});
+
 it('Demo Top-Up → POST /accounts/topUp on demo', async () => {
 	const { client, promise } = run(
 		{ operation: 'demoTopup', amount: 500 },

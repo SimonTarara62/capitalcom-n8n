@@ -126,11 +126,16 @@ export async function executeAccount(
 			if (hedging !== 'noChange') body.hedgingMode = hedging === 'enabled';
 			const leveragesRaw = (ctx.getNodeParameter('leverages', i, '') as string).trim();
 			if (leveragesRaw) {
+				let parsed: unknown;
 				try {
-					body.leverages = JSON.parse(leveragesRaw);
+					parsed = JSON.parse(leveragesRaw);
 				} catch {
 					throw new Error('Leverages must be valid JSON, e.g. {"CURRENCIES": 20}');
 				}
+				if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+					throw new Error('Leverages must be a JSON object, e.g. {"CURRENCIES": 20}');
+				}
+				body.leverages = parsed;
 			}
 			return client.request('PUT', '/accounts/preferences', { body });
 		}
