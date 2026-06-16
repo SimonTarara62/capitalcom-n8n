@@ -50,8 +50,10 @@ it('exposes the expected node description', () => {
 	expect(node.description.credentials?.[0]).toMatchObject({ name: 'capitalComApi', required: true });
 	const resource = node.description.properties.find((p) => p.name === 'resource');
 	expect((resource?.options ?? []).map((o) => (o as { value: string }).value).sort()).toEqual([
+		'account',
 		'market',
 		'session',
+		'watchlist',
 	]);
 });
 
@@ -80,4 +82,48 @@ it('switchAccount routes through the router and returns the PUT /session body', 
 	const out = await node.execute.call(ctx);
 	// The body returned by PUT /session is { trailingAccountId: 'NEW' }.
 	expect(out[0][0].json).toMatchObject({ trailingAccountId: 'NEW' });
+});
+
+it('routes an Account: List through the node', async () => {
+	const node = new CapitalCom();
+	const http = async (opts: Record<string, unknown>) => {
+		const url = String(opts.url);
+		if (url.endsWith('/session') && opts.method === 'POST') {
+			return { statusCode: 200, headers: { CST: 'C', 'X-SECURITY-TOKEN': 'T' }, body: {} };
+		}
+		if (url.endsWith('/accounts')) {
+			return { statusCode: 200, headers: {}, body: { accounts: [{ accountId: 'A' }] } };
+		}
+		return { statusCode: 404, headers: {}, body: { errorCode: 'not.found' } };
+	};
+	const ctx = fakeExecute({
+		params: { resource: 'account', operation: 'list' },
+		credentials: { apiKey: 'K', identifier: 'me@example.com', password: 'p', environment: 'demo' },
+		httpRequest: http,
+	});
+	const out = await node.execute.call(ctx);
+	expect(out).toEqual([[{ json: { accounts: [{ accountId: 'A' }] }, pairedItem: { item: 0 } }]]);
+});
+
+it('routes a Watchlist: Create through the node', async () => {
+	const node = new CapitalCom();
+	const http = async (opts: Record<string, unknown>) => {
+		const url = String(opts.url);
+		if (url.endsWith('/session') && opts.method === 'POST') {
+			return { statusCode: 200, headers: { CST: 'C', 'X-SECURITY-TOKEN': 'T' }, body: {} };
+		}
+		if (url.endsWith('/watchlists') && opts.method === 'POST') {
+			return { statusCode: 200, headers: {}, body: { watchlistId: 'w9', status: 'SUCCESS' } };
+		}
+		return { statusCode: 404, headers: {}, body: { errorCode: 'not.found' } };
+	};
+	const ctx = fakeExecute({
+		params: { resource: 'watchlist', operation: 'create', name: 'My List' },
+		credentials: { apiKey: 'K', identifier: 'me@example.com', password: 'p', environment: 'demo' },
+		httpRequest: http,
+	});
+	const out = await node.execute.call(ctx);
+	expect(out).toEqual([
+		[{ json: { watchlistId: 'w9', status: 'SUCCESS' }, pairedItem: { item: 0 } }],
+	]);
 });

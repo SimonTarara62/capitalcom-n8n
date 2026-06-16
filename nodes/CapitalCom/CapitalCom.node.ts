@@ -8,8 +8,10 @@ import {
 } from 'n8n-workflow';
 
 import { createClient } from './transport';
+import { executeAccount, accountFields, accountOperations } from './actions/account';
 import { executeMarket, marketFields, marketOperations } from './actions/market';
 import { executeSession, sessionFields, sessionOperations } from './actions/session';
+import { executeWatchlist, watchlistFields, watchlistOperations } from './actions/watchlist';
 
 export class CapitalCom implements INodeType {
 	description: INodeTypeDescription = {
@@ -31,15 +33,21 @@ export class CapitalCom implements INodeType {
 				type: 'options',
 				noDataExpression: true,
 				options: [
+					{ name: 'Account', value: 'account' },
 					{ name: 'Market', value: 'market' },
 					{ name: 'Session', value: 'session' },
+					{ name: 'Watchlist', value: 'watchlist' },
 				],
 				default: 'market',
 			},
+			accountOperations,
+			...accountFields,
 			marketOperations,
 			...marketFields,
 			sessionOperations,
 			...sessionFields,
+			watchlistOperations,
+			...watchlistFields,
 		],
 	};
 
@@ -56,6 +64,10 @@ export class CapitalCom implements INodeType {
 					result = await executeSession(client, this, i);
 				} else if (resource === 'market') {
 					result = await executeMarket(client, this, i);
+				} else if (resource === 'account') {
+					result = await executeAccount(client, this, i);
+				} else if (resource === 'watchlist') {
+					result = await executeWatchlist(client, this, i);
 				} else {
 					throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`);
 				}
