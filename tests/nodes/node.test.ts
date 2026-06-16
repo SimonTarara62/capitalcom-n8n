@@ -8,6 +8,9 @@ function httpScript() {
 		if (url.endsWith('/session') && opts.method === 'POST') {
 			return { statusCode: 200, headers: { CST: 'C', 'X-SECURITY-TOKEN': 'T' }, body: { currentAccountId: 'A' } };
 		}
+		if (url.endsWith('/session') && opts.method === 'PUT') {
+			return { statusCode: 200, headers: {}, body: { trailingAccountId: 'NEW' } };
+		}
 		if (url.endsWith('/ping')) {
 			return { statusCode: 200, headers: {}, body: { status: 'OK' } };
 		}
@@ -50,4 +53,31 @@ it('exposes the expected node description', () => {
 		'market',
 		'session',
 	]);
+});
+
+it('multi-item execution: 2 inputs produce 2 paired output rows', async () => {
+	const node = new CapitalCom();
+	const ctx = fakeExecute({
+		params: { resource: 'session', operation: 'ping' },
+		credentials: creds,
+		itemCount: 2,
+		httpRequest: httpScript(),
+	});
+	const out = await node.execute.call(ctx);
+	// Returns [[row0, row1]] — one output array with two rows.
+	expect(out[0]).toHaveLength(2);
+	expect(out[0][0].pairedItem).toEqual({ item: 0 });
+	expect(out[0][1].pairedItem).toEqual({ item: 1 });
+});
+
+it('switchAccount routes through the router and returns the PUT /session body', async () => {
+	const node = new CapitalCom();
+	const ctx = fakeExecute({
+		params: { resource: 'session', operation: 'switchAccount', accountId: 'NEW' },
+		credentials: creds,
+		httpRequest: httpScript(),
+	});
+	const out = await node.execute.call(ctx);
+	// The body returned by PUT /session is { trailingAccountId: 'NEW' }.
+	expect(out[0][0].json).toMatchObject({ trailingAccountId: 'NEW' });
 });

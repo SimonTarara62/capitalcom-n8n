@@ -40,7 +40,9 @@ function header(headers: Record<string, string>, name: string): string | undefin
 /** Exported for unit-testing; determines which rate-limit bucket to use. */
 export function rateLimitKind(method: HttpMethod, path: string): RateLimitKind {
 	const isWrite = method === 'POST' || method === 'PUT' || method === 'DELETE';
-	if (isWrite && path.startsWith('/session')) return 'session';
+	// Only POST /session (login) needs the session-scoped bucket; PUT /session
+	// (switchAccount) and DELETE /session (logout) are ordinary API calls.
+	if (method === 'POST' && path.startsWith('/session')) return 'session';
 	if (isWrite && (path.startsWith('/positions') || path.startsWith('/workingorders'))) return 'trading';
 	return 'global';
 }

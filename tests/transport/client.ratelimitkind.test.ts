@@ -5,16 +5,16 @@ describe('rateLimitKind', () => {
 		expect(rateLimitKind('GET', '/session')).toBe('global');
 	});
 
-	it('PUT /session → session', () => {
-		expect(rateLimitKind('PUT', '/session')).toBe('session');
+	it('PUT /session → global (switchAccount is a regular write, not a login)', () => {
+		expect(rateLimitKind('PUT', '/session')).toBe('global');
 	});
 
-	it('POST /session → session', () => {
+	it('POST /session → session (login is rate-limited by the session bucket)', () => {
 		expect(rateLimitKind('POST', '/session')).toBe('session');
 	});
 
-	it('DELETE /session → session', () => {
-		expect(rateLimitKind('DELETE', '/session')).toBe('session');
+	it('DELETE /session → global (logout is a regular write, not a login)', () => {
+		expect(rateLimitKind('DELETE', '/session')).toBe('global');
 	});
 
 	it('POST /positions → trading', () => {

@@ -25,8 +25,20 @@ describe('CapitalComApi credential', () => {
 		const req = cred.test.request;
 		expect(req.method).toBe('POST');
 		expect(req.url).toBe('/api/v1/session');
-		expect(String(req.baseURL)).toContain('demo-api-capital.backend-capital.com');
-		expect(String(req.baseURL)).toContain('api-capital.backend-capital.com');
+
+		const baseURL = String(req.baseURL);
+
+		// Must contain the ternary condition that selects the environment.
+		expect(baseURL).toContain('environment === "live"');
+
+		// Both host literals must be present; the demo host is verified by substring.
+		expect(baseURL).toContain('https://demo-api-capital.backend-capital.com');
+
+		// The live host must appear as a standalone literal (preceded by a quote)
+		// so the assertion fails if only the "demo-" prefix were changed, not if
+		// the string merely contains the demo host (which is a superset).
+		expect(baseURL).toContain('"https://api-capital.backend-capital.com"');
+
 		expect((req.body as Record<string, unknown>).encryptedPassword).toBe(false);
 	});
 });

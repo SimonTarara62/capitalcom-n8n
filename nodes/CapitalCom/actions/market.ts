@@ -159,6 +159,9 @@ export async function executeMarket(
 				.split(',')
 				.map((s) => s.trim())
 				.filter(Boolean);
+			if (ids.length === 0) {
+				throw new Error('At least one market ID is required');
+			}
 			if (ids.length === 1) {
 				return client.request('GET', `/clientsentiment/${encodeURIComponent(ids[0])}`);
 			}

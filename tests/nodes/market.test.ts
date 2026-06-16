@@ -57,6 +57,11 @@ it('Get Sentiment → many ids use batch query', async () => {
 	]);
 });
 
+it('Get Sentiment → empty/whitespace marketIds rejects with a descriptive error', async () => {
+	const { promise } = run({ operation: 'getSentiment', marketIds: '   ' });
+	await expect(promise).rejects.toThrow(/at least one market id/i);
+});
+
 it('Navigation Root → GET /marketnavigation', async () => {
 	const { client, promise } = run({ operation: 'navigationRoot' });
 	await promise;
