@@ -23,18 +23,27 @@ function parseCsv(raw: string): string[] {
 
 export class CapitalComTrigger implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Capital.com Trigger',
+		displayName: 'Capital.com (Unofficial) Trigger',
 		name: 'capitalComTrigger',
 		icon: 'file:capitalcom.svg',
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["stream"]}}',
 		description: 'Stream live Capital.com market data over WebSocket',
-		defaults: { name: 'Capital.com Trigger' },
+		documentationUrl: 'https://github.com/SimonTarara62/capitalcom-n8n',
+		defaults: { name: 'Capital.com (Unofficial) Trigger' },
 		inputs: [],
 		outputs: ['main'],
 		credentials: [{ name: 'capitalComApi', required: true }],
 		properties: [
+			{
+				// eslint-disable-next-line n8n-nodes-base/node-param-display-name-miscased
+				displayName:
+					'Unofficial community node — not affiliated with, endorsed by, or supported by Capital.com. Alpha software; start with a demo account.',
+				name: 'unofficialNotice',
+				type: 'notice',
+				default: '',
+			},
 			{
 				displayName: 'Stream',
 				name: 'stream',
