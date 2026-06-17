@@ -3,7 +3,10 @@
 All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.1.0] - 2026-06-16
+## [0.1.0] - 2026-06-16 — Alpha
+
+Initial public alpha. In active development — operations, parameters, and defaults may
+change between `0.x` versions. Use a demo account.
 
 ### Added
 
