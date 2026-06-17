@@ -5,7 +5,7 @@ describe('CapitalComApi credential', () => {
 
 	it('has the expected identity', () => {
 		expect(cred.name).toBe('capitalComApi');
-		expect(cred.displayName).toBe('Capital.com API (Unofficial)');
+		expect(cred.displayName).toBe('Capital.com (Unofficial) API');
 		expect(cred.documentationUrl).toContain('github.com/SimonTarara62');
 	});
 

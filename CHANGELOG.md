@@ -8,7 +8,7 @@ All notable changes to this project are documented here. The format is based on
 ### Added
 
 - "Unofficial" now appears in the node and credential names shown in the n8n editor
-  (Capital.com (Unofficial), Capital.com (Unofficial) Trigger, Capital.com API (Unofficial)).
+  (Capital.com (Unofficial), Capital.com (Unofficial) Trigger, Capital.com (Unofficial) API).
 - A top-of-panel "unofficial — not affiliated with Capital.com" notice on the action node,
   the trigger node, and the credential, plus documentation links on both nodes.
 

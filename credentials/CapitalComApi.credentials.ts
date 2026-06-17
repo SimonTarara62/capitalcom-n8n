@@ -7,7 +7,7 @@ import type {
 export class CapitalComApi implements ICredentialType {
 	name = 'capitalComApi';
 
-	displayName = 'Capital.com API (Unofficial)';
+	displayName = 'Capital.com (Unofficial) API';
 
 	// eslint-disable-next-line n8n-nodes-base/cred-class-field-documentation-url-miscased -- community package uses a full HTTPS URL, not the main-repo camelCase key form
 	documentationUrl = 'https://github.com/SimonTarara62/capitalcom-n8n';
