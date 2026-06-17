@@ -1,3 +1,6 @@
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
 	CapitalClient,
 	type CapitalCredentials,
@@ -16,16 +19,29 @@ export function loadDemoCreds(): CapitalCredentials | null {
 	return { apiKey, identifier, password, environment: 'demo' };
 }
 
-class MemoryStore implements SessionStore {
-	private tokens: SessionTokens | null = null;
+/** Where the shared demo session is cached so all suites reuse one login (cleared per run by globalSetup). */
+export const SESSION_FILE = join(tmpdir(), 'capitalcom-n8n-it-session.json');
+
+/** SessionStore shared across integration suites via a temp file (avoids concurrent re-login). */
+class FileSessionStore implements SessionStore {
 	get(): SessionTokens | null {
-		return this.tokens;
+		try {
+			return existsSync(SESSION_FILE)
+				? (JSON.parse(readFileSync(SESSION_FILE, 'utf8')) as SessionTokens)
+				: null;
+		} catch {
+			return null;
+		}
 	}
 	set(tokens: SessionTokens): void {
-		this.tokens = tokens;
+		writeFileSync(SESSION_FILE, JSON.stringify(tokens), { mode: 0o600 });
 	}
 	clear(): void {
-		this.tokens = null;
+		try {
+			rmSync(SESSION_FILE);
+		} catch {
+			/* nothing to clear */
+		}
 	}
 }
 
@@ -33,7 +49,7 @@ class MemoryStore implements SessionStore {
 export function makeDemoClient(): CapitalClient | null {
 	const credentials = loadDemoCreds();
 	if (!credentials) return null;
-	return new CapitalClient({ credentials, requester: fetchRequester, store: new MemoryStore() });
+	return new CapitalClient({ credentials, requester: fetchRequester, store: new FileSessionStore() });
 }
 
 /** describe() when demo creds are present, describe.skip() otherwise (opt-in). */
