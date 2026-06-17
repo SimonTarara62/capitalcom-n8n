@@ -45,7 +45,8 @@
       "dist/credentials/CapitalComApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/CapitalCom/CapitalCom.node.js"
+      "dist/nodes/CapitalCom/CapitalCom.node.js",
+      "dist/nodes/CapitalComTrigger/CapitalComTrigger.node.js"
     ]
   },
   "peerDependencies": {
