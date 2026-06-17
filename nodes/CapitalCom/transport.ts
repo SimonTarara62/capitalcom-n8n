@@ -1,4 +1,9 @@
-import type { IDataObject, IExecuteFunctions, ILoadOptionsFunctions } from 'n8n-workflow';
+import type {
+	IDataObject,
+	IExecuteFunctions,
+	ILoadOptionsFunctions,
+	ITriggerFunctions,
+} from 'n8n-workflow';
 import {
 	CapitalClient,
 	type CapitalCredentials,
@@ -9,7 +14,7 @@ import {
 	type SessionTokens,
 } from '../../transport';
 
-type N8nContext = IExecuteFunctions | ILoadOptionsFunctions;
+type N8nContext = IExecuteFunctions | ILoadOptionsFunctions | ITriggerFunctions;
 
 /** SessionStore backed by n8n workflowStaticData so the cached login survives executions. */
 export class WorkflowStaticDataStore implements SessionStore {
@@ -55,7 +60,9 @@ export function makeRequester(ctx: N8nContext): Requester {
 }
 
 /** Build a CapitalClient from the node's credentials, httpRequest helper, and static data. */
-export async function createClient(ctx: IExecuteFunctions): Promise<CapitalClient> {
+export async function createClient(
+	ctx: IExecuteFunctions | ITriggerFunctions,
+): Promise<CapitalClient> {
 	const raw = await ctx.getCredentials('capitalComApi');
 	const credentials: CapitalCredentials = {
 		apiKey: raw.apiKey as string,
