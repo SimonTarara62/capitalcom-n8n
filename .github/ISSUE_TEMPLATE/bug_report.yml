@@ -1,0 +1,49 @@
+name: Bug report
+description: Report something that isn't working as expected.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. **Never include your API key, password, or any
+        credential values** — and don't paste `.env` contents.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what did you get?
+      placeholder: |
+        Resource / Operation: Position → Open
+        Expected: ...
+        Actual: ...
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Error or output
+      description: Paste the node error or output (with any secrets removed).
+      render: shell
+  - type: input
+    id: node-version
+    attributes:
+      label: n8n-nodes-capitalcom version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: n8n-version
+    attributes:
+      label: n8n version
+      placeholder: "1.70.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - demo
+        - live
+    validations:
+      required: true

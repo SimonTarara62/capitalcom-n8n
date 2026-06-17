@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or usage help
+    url: https://github.com/SimonTarara62/capitalcom-n8n/discussions
+    about: For how-to questions, start a Discussion instead of an issue.
+  - name: Security vulnerability
+    url: https://github.com/SimonTarara62/capitalcom-n8n/security/advisories/new
+    about: Report security issues privately — never in a public issue.
