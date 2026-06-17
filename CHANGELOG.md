@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.1] - 2026-06-17 — Alpha
+
+### Added
+
+- "Unofficial" now appears in the node and credential names shown in the n8n editor
+  (Capital.com (Unofficial), Capital.com (Unofficial) Trigger, Capital.com API (Unofficial)).
+- A top-of-panel "unofficial — not affiliated with Capital.com" notice on the action node,
+  the trigger node, and the credential, plus documentation links on both nodes.
+
 ## [0.1.0] - 2026-06-16 — Alpha
 
 Initial public alpha. In active development — operations, parameters, and defaults may
