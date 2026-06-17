@@ -7,12 +7,20 @@ import type {
 export class CapitalComApi implements ICredentialType {
 	name = 'capitalComApi';
 
-	displayName = 'Capital.com API';
+	displayName = 'Capital.com API (Unofficial)';
 
 	// eslint-disable-next-line n8n-nodes-base/cred-class-field-documentation-url-miscased -- community package uses a full HTTPS URL, not the main-repo camelCase key form
 	documentationUrl = 'https://github.com/SimonTarara62/capitalcom-n8n';
 
 	properties: INodeProperties[] = [
+		{
+			// eslint-disable-next-line n8n-nodes-base/cred-class-field-name-unsuffixed
+			displayName:
+				'Unofficial — not affiliated with Capital.com. This API key can place real trades; use a demo account while testing.',
+			name: 'unofficialNotice',
+			type: 'notice',
+			default: '',
+		},
 		{
 			displayName: 'Environment',
 			name: 'environment',

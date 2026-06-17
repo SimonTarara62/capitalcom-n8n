@@ -5,13 +5,23 @@ describe('CapitalComApi credential', () => {
 
 	it('has the expected identity', () => {
 		expect(cred.name).toBe('capitalComApi');
-		expect(cred.displayName).toBe('Capital.com API');
+		expect(cred.displayName).toBe('Capital.com API (Unofficial)');
 		expect(cred.documentationUrl).toContain('github.com/SimonTarara62');
 	});
 
-	it('declares the four auth fields and nothing else', () => {
-		const names = cred.properties.map((p) => p.name).sort();
+	it('declares the four auth fields (ignoring the notice banner)', () => {
+		const names = cred.properties
+			.filter((p) => p.type !== 'notice')
+			.map((p) => p.name)
+			.sort();
 		expect(names).toEqual(['apiKey', 'environment', 'identifier', 'password']);
+	});
+
+	it('shows an unofficial notice', () => {
+		const notice = cred.properties.find((p) => p.type === 'notice');
+		expect(notice).toBeDefined();
+		expect(notice!.displayName.toLowerCase()).toContain('unofficial');
+		expect(notice!.displayName.toLowerCase()).toContain('not affiliated');
 	});
 
 	it('masks the secret fields', () => {
