@@ -6,9 +6,14 @@ it('readSafety parses the three node params with defaults', () => {
 	expect(readSafety(ctx, 0)).toEqual({ dryRun: true, maxSize: 5, allowedEpics: ['GOLD', 'SILVER'] });
 });
 
-it('readSafety defaults to off when params are absent', () => {
+it('readSafety defaults Dry Run ON and the other guards off when params are absent', () => {
 	const ctx = fakeExecute({ params: {} });
-	expect(readSafety(ctx, 0)).toEqual({ dryRun: false, maxSize: 0, allowedEpics: [] });
+	expect(readSafety(ctx, 0)).toEqual({ dryRun: true, maxSize: 0, allowedEpics: [] });
+});
+
+it('readSafety respects an explicit Dry Run off', () => {
+	const ctx = fakeExecute({ params: { dryRun: false } });
+	expect(readSafety(ctx, 0).dryRun).toBe(false);
 });
 
 it('enforceSafety throws when size exceeds the max-size guard', () => {

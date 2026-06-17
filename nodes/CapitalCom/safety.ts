@@ -16,9 +16,10 @@ export function safetyFields(operations: string[]): INodeProperties[] {
 			displayName: 'Dry Run',
 			name: 'dryRun',
 			type: 'boolean',
-			default: false,
+			default: true,
 			displayOptions: { show },
-			description: 'Whether to validate and return the request without sending it to the broker',
+			description:
+				'Whether to validate and return the request WITHOUT sending it to the broker. Defaults ON for safety — turn off to place real orders.',
 		},
 		{
 			displayName: 'Max Size Guard',
@@ -41,7 +42,7 @@ export function safetyFields(operations: string[]): INodeProperties[] {
 }
 
 export function readSafety(ctx: IExecuteFunctions, i: number): SafetySettings {
-	const dryRun = ctx.getNodeParameter('dryRun', i, false) as boolean;
+	const dryRun = ctx.getNodeParameter('dryRun', i, true) as boolean;
 	const maxSize = ctx.getNodeParameter('maxSize', i, 0) as number;
 	const allowedEpics = (ctx.getNodeParameter('allowedEpics', i, '') as string)
 		.split(',')

@@ -90,3 +90,13 @@ it('Open with waitForConfirmation → attaches confirmation to result', async ()
 	const out = (await promise) as { confirmation: { dealStatus: string; status: string } };
 	expect(out.confirmation.status).toBe('ACCEPTED');
 });
+
+it('Open with Dry Run defaulted ON (param omitted) sends nothing', async () => {
+	const { client, promise } = run({
+		operation: 'open', epic: 'GOLD', direction: 'BUY', size: 1, stopsLimits: {},
+		// dryRun intentionally omitted → should default ON
+	});
+	const out = (await promise) as { dryRun?: boolean };
+	expect(out.dryRun).toBe(true);
+	expect(client.calls).toHaveLength(0);
+});
