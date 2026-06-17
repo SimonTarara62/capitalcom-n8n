@@ -29,9 +29,10 @@
     "format": "prettier nodes credentials transport --write",
     "lint": "eslint nodes credentials transport package.json --no-error-on-unmatched-pattern",
     "lintfix": "eslint nodes credentials transport package.json --fix --no-error-on-unmatched-pattern",
+    "lint:prepublish": "eslint nodes credentials transport package.json --no-error-on-unmatched-pattern -c .eslintrc.prepublish.js",
     "test": "jest",
     "test:integration": "jest --config jest.integration.config.js",
-    "prepublishOnly": "npm run build && npm run lint"
+    "prepublishOnly": "npm run build && npm run lint:prepublish"
   },
   "files": [
     "dist",
