@@ -1,0 +1,18 @@
+# Changelog
+
+All notable changes to this project are documented here. The format is based on
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [0.1.0] - 2026-06-16
+
+### Added
+
+- **Capital.com** action node with seven resources: Session, Market, Account, Watchlist,
+  Position, Order, and Confirmation — full coverage of the Capital.com Open API request/response
+  surface.
+- **Capital.com Trigger** node streaming live Prices (quotes) and Candles (OHLC) over WebSocket,
+  with keep-alive ping and automatic reconnect.
+- **Capital.com API** credential (API key, identifier, password, demo/live) with a live login test.
+- Trading safety controls as node parameters: **Dry Run** (defaults ON), **Max Size Guard**, and
+  **Allowed EPICs**, enforced before any order is sent. **Preview** operations never send.
+- Automatic session caching and refresh; client-side rate limiting; readable API error mapping.
