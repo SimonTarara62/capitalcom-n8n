@@ -18,18 +18,27 @@ import { executeConfirmation, confirmationFields, confirmationOperations } from 
 
 export class CapitalCom implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Capital.com',
+		displayName: 'Capital.com (Unofficial)',
 		name: 'capitalCom',
 		icon: 'file:capitalcom.svg',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with the Capital.com Open API',
-		defaults: { name: 'Capital.com' },
+		documentationUrl: 'https://github.com/SimonTarara62/capitalcom-n8n',
+		defaults: { name: 'Capital.com (Unofficial)' },
 		inputs: ['main'],
 		outputs: ['main'],
 		credentials: [{ name: 'capitalComApi', required: true }],
 		properties: [
+			{
+				// eslint-disable-next-line n8n-nodes-base/node-param-display-name-miscased
+				displayName:
+					'Unofficial community node — not affiliated with, endorsed by, or supported by Capital.com. Alpha software; start with a demo account.',
+				name: 'unofficialNotice',
+				type: 'notice',
+				default: '',
+			},
 			{
 				displayName: 'Resource',
 				name: 'resource',

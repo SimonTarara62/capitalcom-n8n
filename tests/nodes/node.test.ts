@@ -46,7 +46,7 @@ it('continueOnFail surfaces the error as data instead of throwing', async () => 
 it('exposes the expected node description', () => {
 	const node = new CapitalCom();
 	expect(node.description.name).toBe('capitalCom');
-	expect(node.description.displayName).toBe('Capital.com');
+	expect(node.description.displayName).toBe('Capital.com (Unofficial)');
 	expect(node.description.credentials?.[0]).toMatchObject({ name: 'capitalComApi', required: true });
 	const resource = node.description.properties.find((p) => p.name === 'resource');
 	expect((resource?.options ?? []).map((o) => (o as { value: string }).value).sort()).toEqual([
@@ -187,4 +187,14 @@ it('routes a Position: Open Dry Run without any POST', async () => {
 	const out = (await node.execute.call(ctx)) as Array<Array<{ json: { dryRun?: boolean } }>>;
 	expect(out[0][0].json.dryRun).toBe(true);
 	expect(calls.some((c) => c.includes('/positions'))).toBe(false); // never POSTed
+});
+
+it('shows an unofficial notice and a docs link', () => {
+	const node = new CapitalCom();
+	const notice = node.description.properties.find((p) => p.type === 'notice');
+	expect(notice).toBeDefined();
+	expect(notice!.displayName.toLowerCase()).toContain('unofficial');
+	expect(notice!.displayName.toLowerCase()).toContain('not affiliated');
+	expect(node.description.documentationUrl).toContain('github.com/SimonTarara62/capitalcom-n8n');
+	expect(node.description.defaults.name).toBe('Capital.com (Unofficial)');
 });
