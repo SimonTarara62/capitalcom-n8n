@@ -1,9 +1,14 @@
 # n8n-nodes-capitalcom
 
+> **🚧 Alpha (v0.1.0) — in active development.** This is an early release. Operations,
+> node parameters, and default behaviour may change between versions. Use a **demo**
+> Capital.com account, expect rough edges, and please [report issues](https://github.com/SimonTarara62/capitalcom-n8n/issues).
+> Not production-ready.
+>
 > **Unofficial.** Independent community project — not affiliated with, endorsed by, or
 > supported by Capital.com.
 
-[![CI](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml/badge.svg)](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](#) [![CI](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml/badge.svg)](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 
 An [n8n](https://n8n.io) community node for the **Capital.com Open API** — market data,
 accounts, watchlists, and trading (positions & working orders), plus a WebSocket **Trigger**
@@ -25,6 +30,9 @@ n8n? See that project.
   Capital.com demo endpoints (including a live WebSocket quote).
 
 ## Installation
+
+> **Alpha:** APIs and node parameters may change without notice while this is `0.x`.
+> Pin a version (`n8n-nodes-capitalcom@0.1.0`) if you need stability between updates.
 
 **Community Nodes (self-hosted n8n):** Settings → Community Nodes → Install, enter
 `n8n-nodes-capitalcom`, and confirm. Restart n8n if prompted.
