@@ -7,8 +7,5 @@ module.exports = {
 	setupFiles: ['dotenv/config'],
 	globalSetup: '<rootDir>/tests/integration/globalSetup.js',
 	maxWorkers: 1,
-	transform: {
-		'^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }],
-	},
 	testTimeout: 30000,
 };

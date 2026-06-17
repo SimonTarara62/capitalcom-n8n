@@ -5,8 +5,5 @@ module.exports = {
 	roots: ['<rootDir>/tests'],
 	testMatch: ['**/*.test.ts'],
 	testPathIgnorePatterns: ['/node_modules/', '/tests/integration/'],
-	transform: {
-		'^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }],
-	},
 	clearMocks: true,
 };
