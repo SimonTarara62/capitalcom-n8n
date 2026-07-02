@@ -25,3 +25,6 @@ coverage/
 
 # Packed tarballs (npm pack output)
 *.tgz
+
+# SDD scratch (progress ledger, review packages)
+.superpowers/
