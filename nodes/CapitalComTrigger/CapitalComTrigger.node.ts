@@ -39,7 +39,7 @@ export class CapitalComTrigger implements INodeType {
 			{
 				// eslint-disable-next-line n8n-nodes-base/node-param-display-name-miscased
 				displayName:
-					'Unofficial community node — not affiliated with, endorsed by, or supported by Capital.com. Alpha software; start with a demo account.',
+					'Unofficial community node — not affiliated with, endorsed by, or supported by Capital.com. Beta software; start with a demo account.',
 				name: 'unofficialNotice',
 				type: 'notice',
 				default: '',
