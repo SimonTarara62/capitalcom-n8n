@@ -10,7 +10,7 @@ module.exports = {
       plugins: ['eslint-plugin-n8n-nodes-base'],
       extends: ['plugin:n8n-nodes-base/community'],
       rules: {
-        // We use Apache-2.0, not the default MIT
+        // MIT is the n8n community default; rule kept off as belt-and-suspenders
         'n8n-nodes-base/community-package-json-license-not-default': 'off',
         // The name is intentional (not the starter template default)
         'n8n-nodes-base/community-package-json-name-still-default': 'off',

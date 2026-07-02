@@ -10,7 +10,7 @@
     "market-data",
     "finance"
   ],
-  "license": "Apache-2.0",
+  "license": "MIT",
   "homepage": "https://github.com/SimonTarara62/capitalcom-n8n",
   "author": {
     "name": "Simon Tarara"
@@ -37,7 +37,6 @@
   "files": [
     "dist",
     "LICENSE",
-    "NOTICE",
     "README.md",
     "CHANGELOG.md"
   ],
