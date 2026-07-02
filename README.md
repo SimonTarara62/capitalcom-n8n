@@ -51,7 +51,7 @@ Ready-to-import workflows live in [`examples/`](./examples) — market data, a g
 ## Installation
 
 > **Beta (`0.x`):** node parameters may still change between minor versions.
-> Pin a version (`n8n-nodes-capitalcom@0.1.0`) if you need stability between updates.
+> Pin a version (`n8n-nodes-capitalcom@0.2.0`) if you need stability between updates.
 
 **Community Nodes (self-hosted n8n):** Settings → Community Nodes → Install, enter
 `n8n-nodes-capitalcom`, and confirm. Restart n8n if prompted.
