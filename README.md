@@ -1,14 +1,14 @@
 # n8n-nodes-capitalcom
 
-> **🚧 Alpha (v0.1.0) — in active development.** This is an early release. Operations,
-> node parameters, and default behaviour may change between versions. Use a **demo**
-> Capital.com account, expect rough edges, and please [report issues](https://github.com/SimonTarara62/capitalcom-n8n/issues).
-> Not production-ready.
+> **🧪 Beta (v0.2.0).** Stable and in real use. It's still `0.x`, so node parameters
+> may change between minor versions — pin a version if you need stability. Trades real
+> money: use a **demo** Capital.com account first, and please
+> [report issues](https://github.com/SimonTarara62/capitalcom-n8n/issues).
 >
 > **Unofficial.** Independent community project — not affiliated with, endorsed by, or
 > supported by Capital.com.
 
-[![npm version](https://img.shields.io/npm/v/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![status: alpha](https://img.shields.io/badge/status-alpha-orange.svg)](#) [![CI](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml/badge.svg)](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![status: beta](https://img.shields.io/badge/status-beta-blue.svg)](#) [![CI](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml/badge.svg)](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 An [n8n](https://n8n.io) community node for the **Capital.com Open API** — market data,
 accounts, watchlists, and trading (positions & working orders), plus a WebSocket **Trigger**
@@ -29,9 +29,16 @@ n8n? See that project.
 - **Proven against the live demo API** — an opt-in integration suite exercises the real
   Capital.com demo endpoints (including a live WebSocket quote).
 
+## Maintained & open to contributions
+
+I use this node against the live Capital.com API and keep it current as the API
+evolves. It's MIT-licensed and the source is public — **issues and pull requests are
+welcome**. See [CONTRIBUTING](./CONTRIBUTING.md) and start a thread in
+[Discussions](https://github.com/SimonTarara62/capitalcom-n8n/discussions).
+
 ## Installation
 
-> **Alpha:** APIs and node parameters may change without notice while this is `0.x`.
+> **Beta (`0.x`):** node parameters may still change between minor versions.
 > Pin a version (`n8n-nodes-capitalcom@0.1.0`) if you need stability between updates.
 
 **Community Nodes (self-hosted n8n):** Settings → Community Nodes → Install, enter
