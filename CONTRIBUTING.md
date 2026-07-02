@@ -72,4 +72,4 @@ never touch live. Without `.env`, the suite skips cleanly.
 - Keep PRs focused; never include credentials, secrets, or `.env` contents.
 
 By contributing you agree your work is licensed under the project's
-[Apache-2.0](./LICENSE) license.
+[MIT](./LICENSE) license.

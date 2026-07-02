@@ -134,4 +134,5 @@ responsible for any trades placed with your credentials.
 
 ## License
 
-[Apache-2.0](./LICENSE). See [NOTICE](./NOTICE).
+[MIT](./LICENSE) © 2026 Simon Tarara. See [DISCLAIMER](./DISCLAIMER.md) for the
+unofficial-affiliation and financial-risk notice.
