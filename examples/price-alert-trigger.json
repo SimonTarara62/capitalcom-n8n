@@ -1,0 +1,65 @@
+{
+  "name": "Example — Capital.com price-alert trigger",
+  "nodes": [
+    {
+      "id": "n1",
+      "name": "Price Stream",
+      "type": "n8n-nodes-capitalcom.capitalComTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "parameters": {
+        "stream": "prices",
+        "epics": "EURUSD"
+      },
+      "credentials": {
+        "capitalComApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Capital.com (Unofficial) API"
+        }
+      }
+    },
+    {
+      "id": "n2",
+      "name": "Price Above Threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [480, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.bid }}",
+              "rightValue": 1.1,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "n3",
+      "name": "Alert (add your notification)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 220],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Price Stream": {
+      "main": [[{ "node": "Price Above Threshold?", "type": "main", "index": 0 }]]
+    },
+    "Price Above Threshold?": {
+      "main": [[{ "node": "Alert (add your notification)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

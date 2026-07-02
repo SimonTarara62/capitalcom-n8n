@@ -1,0 +1,58 @@
+{
+  "name": "Example — Capital.com market data fetch",
+  "nodes": [
+    {
+      "id": "n1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "parameters": {}
+    },
+    {
+      "id": "n2",
+      "name": "Search Market",
+      "type": "n8n-nodes-capitalcom.capitalCom",
+      "typeVersion": 1,
+      "position": [460, 300],
+      "parameters": {
+        "resource": "market",
+        "operation": "search",
+        "searchTerm": "EURUSD"
+      },
+      "credentials": {
+        "capitalComApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Capital.com (Unofficial) API"
+        }
+      }
+    },
+    {
+      "id": "n3",
+      "name": "Get Market Details",
+      "type": "n8n-nodes-capitalcom.capitalCom",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "parameters": {
+        "resource": "market",
+        "operation": "get",
+        "epic": "={{ $json.epic }}"
+      },
+      "credentials": {
+        "capitalComApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL",
+          "name": "Capital.com (Unofficial) API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{ "node": "Search Market", "type": "main", "index": 0 }]]
+    },
+    "Search Market": {
+      "main": [[{ "node": "Get Market Details", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

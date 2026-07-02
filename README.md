@@ -36,6 +36,18 @@ evolves. It's MIT-licensed and the source is public — **issues and pull reques
 welcome**. See [CONTRIBUTING](./CONTRIBUTING.md) and start a thread in
 [Discussions](https://github.com/SimonTarara62/capitalcom-n8n/discussions).
 
+## Example workflows
+
+Ready-to-import workflows live in [`examples/`](./examples) — market data, a guarded
+(Dry-Run) position open, and a live price-alert Trigger.
+
+<!-- SCREENSHOT: Capital.com (Unofficial) node in the n8n editor -->
+<!-- SCREENSHOT: a running example workflow -->
+
+> **Screenshots to add (author):** capture the node in the editor and one running
+> workflow, save under `docs/images/`, and replace the two comments above with
+> `![...](docs/images/<file>.png)`.
+
 ## Installation
 
 > **Beta (`0.x`):** node parameters may still change between minor versions.
