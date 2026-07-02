@@ -43,11 +43,11 @@ Ready-to-import workflows live in [`examples/`](./examples) — market data, a g
 
 **The Capital.com (Unofficial) node in the n8n editor:**
 
-![The Capital.com (Unofficial) node in the n8n editor](docs/images/node.png)
+![The Capital.com (Unofficial) node in the n8n editor](https://raw.githubusercontent.com/SimonTarara62/capitalcom-n8n/main/docs/images/node.png)
 
 **An example workflow built with the node:**
 
-![An example workflow built with the Capital.com (Unofficial) node](docs/images/workflow.png)
+![An example workflow built with the Capital.com (Unofficial) node](https://raw.githubusercontent.com/SimonTarara62/capitalcom-n8n/main/docs/images/workflow.png)
 
 ## Installation
 
