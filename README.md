@@ -41,12 +41,13 @@ welcome**. See [CONTRIBUTING](./CONTRIBUTING.md) and start a thread in
 Ready-to-import workflows live in [`examples/`](./examples) — market data, a guarded
 (Dry-Run) position open, and a live price-alert Trigger.
 
-<!-- SCREENSHOT: Capital.com (Unofficial) node in the n8n editor -->
-<!-- SCREENSHOT: a running example workflow -->
+**The Capital.com (Unofficial) node in the n8n editor:**
 
-> **Screenshots to add (author):** capture the node in the editor and one running
-> workflow, save under `docs/images/`, and replace the two comments above with
-> `![...](docs/images/<file>.png)`.
+![The Capital.com (Unofficial) node in the n8n editor](docs/images/node.png)
+
+**An example workflow built with the node:**
+
+![An example workflow built with the Capital.com (Unofficial) node](docs/images/workflow.png)
 
 ## Installation
 
