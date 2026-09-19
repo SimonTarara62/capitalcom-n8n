@@ -90,7 +90,7 @@ it('sends a subscribe message carrying the session tokens once open', async () =
 	expect(payload.payload.epics).toEqual(['GOLD', 'SILVER']);
 });
 
-it('emits data messages received from the socket', async () => {
+it('emits data messages received from the socket, with the payload intact', async () => {
 	const { socket, emitted } = await startTrigger();
 	socket.fireOpen();
 	socket.fireMessage(
@@ -98,6 +98,19 @@ it('emits data messages received from the socket', async () => {
 	);
 
 	expect(emitted).toHaveLength(1);
+	// Assert the message actually round-trips. Without this, an implementation
+	// that emitted the wrong object (or an empty one) would still pass.
+	const emittedMessage = (emitted as unknown as Array<Array<Array<Record<string, unknown>>>>)[0][0][0];
+	expect(emittedMessage.destination).toBe('quote');
+	expect(emittedMessage.payload).toEqual({ epic: 'GOLD', bid: 1 });
+});
+
+it('does not emit control messages when Emit All Messages is off', async () => {
+	const { socket, emitted } = await startTrigger();
+	socket.fireOpen();
+	socket.fireMessage(JSON.stringify({ destination: 'ping', status: 'OK' }));
+
+	expect(emitted).toHaveLength(0);
 });
 
 it('sends a ping on the ping interval', async () => {
