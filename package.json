@@ -20,19 +20,17 @@
     "url": "git+https://github.com/SimonTarara62/capitalcom-n8n.git"
   },
   "engines": {
-    "node": ">=20.15"
+    "node": ">=24.0.0"
   },
   "main": "index.js",
   "scripts": {
-    "build": "tsc && gulp build:icons",
-    "dev": "tsc --watch",
-    "format": "prettier nodes credentials transport --write",
-    "lint": "eslint nodes credentials transport package.json --no-error-on-unmatched-pattern",
-    "lintfix": "eslint nodes credentials transport package.json --fix --no-error-on-unmatched-pattern",
-    "lint:prepublish": "eslint nodes credentials transport package.json --no-error-on-unmatched-pattern -c .eslintrc.prepublish.js",
+    "build": "n8n-node build",
+    "dev": "n8n-node dev",
+    "lint": "n8n-node lint",
+    "lintfix": "n8n-node lint --fix",
+    "release": "n8n-node release",
     "test": "jest",
-    "test:integration": "jest --config jest.integration.config.js",
-    "prepublishOnly": "npm run build && npm run lint:prepublish"
+    "test:integration": "jest --config jest.integration.config.js"
   },
   "files": [
     "dist",
@@ -42,6 +40,7 @@
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
+    "strict": true,
     "credentials": [
       "dist/credentials/CapitalComApi.credentials.js"
     ],
@@ -54,6 +53,7 @@
     "n8n-workflow": "*"
   },
   "devDependencies": {
+    "@n8n/node-cli": "0.48.5",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.19.21",
     "@types/ws": "^8.18.1",
@@ -61,9 +61,8 @@
     "dotenv": "^16.6.1",
     "eslint": "^8.57.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
-    "gulp": "^5.0.0",
     "jest": "^29.7.0",
-    "n8n-workflow": "^1.70.0",
+    "n8n-workflow": "^2.16.0",
     "prettier": "^3.3.3",
     "ts-jest": "^29.4.11",
     "typescript": "^5.6.3"
