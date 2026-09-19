@@ -1,14 +1,21 @@
 import {
+	sleepWithAbort,
 	type IDataObject,
 	type INodeType,
 	type INodeTypeDescription,
 	type ITriggerFunctions,
 	type ITriggerResponse,
 } from 'n8n-workflow';
-import WebSocket from 'ws';
 
 import { WS_URL } from '../../transport';
-import { assertEpicCount, buildPing, buildSubscribeForStream, selectEmit, type StreamKind, type WsTokens } from '../../transport/wsProtocol';
+import {
+	assertEpicCount,
+	buildPing,
+	buildSubscribeForStream,
+	selectEmit,
+	type StreamKind,
+	type WsTokens,
+} from '../../transport/wsProtocol';
 import { createClient } from '../CapitalCom/transport';
 
 // session expires ~10 min; ping well inside that — constant kept here for module-level visibility
@@ -93,96 +100,111 @@ export class CapitalComTrigger implements INodeType {
 		const RECONNECT_BASE_MS = 2000;
 		const RECONNECT_MAX_MS = 60_000;
 
+		// One controller for the whole trigger lifetime. Aborting it detaches every
+		// listener and breaks every background loop in a single step, so closeFunction
+		// cannot leave a ping or reconnect running.
+		const lifetime = new AbortController();
 		let socket: WebSocket | undefined;
-		let pingTimer: NodeJS.Timeout | undefined;
-		let reconnectTimer: NodeJS.Timeout | undefined;
 		let attempts = 0;
-		let closed = false;
 
-		const clearPing = () => {
-			if (pingTimer) {
-				clearInterval(pingTimer);
-				pingTimer = undefined;
-			}
-		};
-
-		const teardownSocket = () => {
-			clearPing();
-			if (socket) {
-				socket.removeAllListeners();
-				try {
-					socket.terminate();
-				} catch {
-					/* already gone */
+		const pingLoop = async (ws: WebSocket, tokens: WsTokens, signal: AbortSignal): Promise<void> => {
+			try {
+				for (;;) {
+					await sleepWithAbort(PING_INTERVAL_MS, signal);
+					if (signal.aborted || socket !== ws) return;
+					ws.send(JSON.stringify(buildPing(tokens)));
 				}
-				socket = undefined;
+			} catch {
+				/* aborted, or the socket died — 'close' drives the reconnect */
 			}
 		};
 
-		const scheduleReconnect = () => {
-			if (closed) return;
+		const scheduleReconnect = async (): Promise<void> => {
+			if (lifetime.signal.aborted) return;
 			const delay = Math.min(RECONNECT_BASE_MS * 2 ** attempts, RECONNECT_MAX_MS);
 			attempts += 1;
-			reconnectTimer = setTimeout(() => {
-				connect().catch((error) => {
-					this.logger.warn(`Capital.com Trigger reconnect failed: ${(error as Error).message}`);
-					scheduleReconnect();
-				});
-			}, delay);
+			try {
+				await sleepWithAbort(delay, lifetime.signal);
+			} catch {
+				return; // aborted while backing off
+			}
+			if (lifetime.signal.aborted) return;
+			await connect().catch((error) => {
+				this.logger.warn(`Capital.com Trigger reconnect failed: ${(error as Error).message}`);
+				void scheduleReconnect();
+			});
 		};
 
 		const connect = async (): Promise<void> => {
-			if (closed) return;
-			teardownSocket();
+			if (lifetime.signal.aborted) return;
 
 			const client = await createClient(this);
 			const session = await client.ensureLoggedIn();
 			const tokens: WsTokens = { cst: session.cst, securityToken: session.xSecurityToken };
 
-			const ws = new WebSocket(WS_URL, {
-				headers: { CST: tokens.cst, 'X-SECURITY-TOKEN': tokens.securityToken },
-			});
+			// Per-connection controller, chained to the trigger lifetime. Capital.com
+			// authenticates every message (cst + securityToken travel in each payload),
+			// so the native WebSocket's inability to set handshake headers is harmless.
+			const conn = new AbortController();
+			lifetime.signal.addEventListener('abort', () => conn.abort(), { once: true });
+
+			const ws = new WebSocket(WS_URL);
 			socket = ws;
 
-			ws.on('open', () => {
-				if (socket !== ws) return; // stale socket from a superseded connect()
-				attempts = 0; // reset backoff after a successful connection
-				ws.send(JSON.stringify(buildSubscribeForStream(stream, epics, resolutions, tokens)));
-				pingTimer = setInterval(() => {
-					try {
-						ws.send(JSON.stringify(buildPing(tokens)));
-					} catch {
-						/* a send failure will surface as a close → reconnect */
+			ws.addEventListener(
+				'open',
+				() => {
+					if (socket !== ws) return; // stale socket from a superseded connect()
+					attempts = 0; // reset backoff after a successful connection
+					ws.send(JSON.stringify(buildSubscribeForStream(stream, epics, resolutions, tokens)));
+					void pingLoop(ws, tokens, conn.signal);
+				},
+				{ signal: conn.signal },
+			);
+
+			ws.addEventListener(
+				'message',
+				(event) => {
+					if (socket !== ws) return;
+					const message = selectEmit(String((event as MessageEvent).data), emitAll);
+					if (message) this.emit([this.helpers.returnJsonArray([message as IDataObject])]);
+				},
+				{ signal: conn.signal },
+			);
+
+			ws.addEventListener(
+				'close',
+				() => {
+					if (socket !== ws) return;
+					conn.abort(); // stops this connection's ping loop
+					if (!lifetime.signal.aborted) void scheduleReconnect();
+				},
+				{ signal: conn.signal },
+			);
+
+			ws.addEventListener(
+				'error',
+				() => {
+					if (socket === ws) {
+						this.logger.warn('Capital.com Trigger socket error');
 					}
-				}, PING_INTERVAL_MS);
-			});
-
-			ws.on('message', (data: WebSocket.RawData) => {
-				if (socket !== ws) return;
-				const message = selectEmit(data.toString(), emitAll);
-				if (message) this.emit([this.helpers.returnJsonArray([message as IDataObject])]);
-			});
-
-			ws.on('close', () => {
-				if (socket !== ws) return;
-				clearPing();
-				if (!closed) scheduleReconnect();
-			});
-
-			ws.on('error', (error: Error) => {
-				if (socket === ws) {
-					this.logger.warn(`Capital.com Trigger socket error: ${error.message}`);
-				}
-				// 'error' is followed by 'close', which handles reconnect.
-			});
+					// 'error' is followed by 'close', which handles the reconnect.
+				},
+				{ signal: conn.signal },
+			);
 		};
 
 		await connect();
 
 		const closeFunction = async (): Promise<void> => {
-			closed = true;
-			if (reconnectTimer) clearTimeout(reconnectTimer);
-			teardownSocket();
+			lifetime.abort(); // detaches all listeners and cancels ping + reconnect
+			const ws = socket;
+			socket = undefined;
+			try {
+				ws?.close();
+			} catch {
+				/* already gone */
+			}
 		};
 
 		return { closeFunction };
