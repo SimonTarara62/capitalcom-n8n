@@ -12,7 +12,7 @@ import { assertEpicCount, buildPing, buildSubscribeForStream, selectEmit, type S
 import { createClient } from '../CapitalCom/transport';
 
 // session expires ~10 min; ping well inside that — constant kept here for module-level visibility
-const PING_INTERVAL_MS = 8 * 60 * 1000;
+export const PING_INTERVAL_MS = 8 * 60 * 1000;
 
 function parseCsv(raw: string): string[] {
 	return raw
