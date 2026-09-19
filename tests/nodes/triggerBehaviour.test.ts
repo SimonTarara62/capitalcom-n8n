@@ -2,12 +2,15 @@ import {
 	CapitalComTrigger,
 	PING_INTERVAL_MS,
 } from '../../nodes/CapitalComTrigger/CapitalComTrigger.node';
+import { createClient } from '../../nodes/CapitalCom/transport';
 
 jest.mock('../../nodes/CapitalCom/transport', () => ({
 	createClient: jest.fn(async () => ({
 		ensureLoggedIn: async () => ({ cst: 'CST1', xSecurityToken: 'TOK1' }),
 	})),
 }));
+
+const createClientMock = createClient as unknown as jest.Mock;
 
 /** Minimal stand-in for the native WebSocket, driven manually by the tests. */
 class FakeSocket extends EventTarget {
@@ -56,6 +59,13 @@ function makeCtx(params: Record<string, unknown>) {
 
 const PRICES_PARAMS = { stream: 'prices', epics: 'GOLD,SILVER', emitAllMessages: false };
 
+/**
+ * Every trigger started by a test, so afterEach can tear them all down. A trigger
+ * left running holds a pending PING_INTERVAL_MS timer, which keeps the Jest worker
+ * alive for the full 8 minutes on any filtered or --runInBand invocation.
+ */
+const startedTriggers: Array<{ closeFunction?: () => Promise<void> }> = [];
+
 async function startTrigger(params: Record<string, unknown> = PRICES_PARAMS) {
 	const { ctx, emitted } = makeCtx(params);
 	const response = await (
@@ -63,12 +73,21 @@ async function startTrigger(params: Record<string, unknown> = PRICES_PARAMS) {
 			closeFunction?: () => Promise<void>;
 		}>
 	).call(ctx);
+	startedTriggers.push(response);
 	return { response, emitted, socket: FakeSocket.instances.at(-1)! };
 }
 
 beforeEach(() => {
 	FakeSocket.instances = [];
+	startedTriggers.length = 0;
 	(globalThis as { WebSocket: unknown }).WebSocket = FakeSocket;
+});
+
+afterEach(async () => {
+	// closeFunction is idempotent, so tests that already close their trigger are fine.
+	while (startedTriggers.length > 0) {
+		await startedTriggers.pop()!.closeFunction?.();
+	}
 });
 
 it('connects to the streaming URL without sending credentials as handshake headers', async () => {
@@ -176,6 +195,51 @@ it('closeFunction prevents any reconnect after an unexpected close', async () =>
 		await jest.advanceTimersByTimeAsync(120_000);
 
 		expect(FakeSocket.instances).toHaveLength(countAfterClose);
+	} finally {
+		jest.useRealTimers();
+	}
+});
+
+it('does not leave a live socket when the trigger is torn down mid-login', async () => {
+	jest.useFakeTimers();
+	try {
+		const { response, socket } = await startTrigger();
+		socket.fireOpen();
+
+		// Park the reconnect's login so teardown lands while it is still in flight.
+		let releaseLogin!: (client: { ensureLoggedIn: () => Promise<unknown> }) => void;
+		createClientMock.mockImplementationOnce(
+			async () =>
+				await new Promise((resolve) => {
+					releaseLogin = resolve;
+				}),
+		);
+
+		socket.close(); // the broker drops us -> backoff -> connect()
+		await jest.advanceTimersByTimeAsync(5_000);
+
+		// connect() is now parked inside createClient, before any socket exists.
+		expect(createClientMock).toHaveBeenCalledTimes(2);
+		const countAtTeardown = FakeSocket.instances.length;
+
+		await response.closeFunction!();
+
+		// The login finally lands, long after the workflow was torn down.
+		releaseLogin({ ensureLoggedIn: async () => ({ cst: 'CST1', xSecurityToken: 'TOK1' }) });
+		await jest.advanceTimersByTimeAsync(100);
+
+		// Either no socket was opened at all, or anything opened was closed at once.
+		const openedAfterTeardown = FakeSocket.instances.slice(countAtTeardown);
+		for (const leaked of openedAfterTeardown) {
+			expect(leaked.closeCalls).toBeGreaterThanOrEqual(1);
+			leaked.fireOpen();
+		}
+
+		// ...and nothing keeps pinging the broker afterwards.
+		await jest.advanceTimersByTimeAsync(PING_INTERVAL_MS * 2);
+		for (const leaked of openedAfterTeardown) {
+			expect(leaked.sent).toHaveLength(0);
+		}
 	} finally {
 		jest.useRealTimers();
 	}
