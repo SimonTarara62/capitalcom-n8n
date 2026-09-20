@@ -47,22 +47,3 @@ export async function searchWatchlists(
 		filter,
 	);
 }
-
-export async function searchEpics(
-	this: ILoadOptionsFunctions,
-	filter?: string,
-): Promise<INodeListSearchResult> {
-	const client = await createClient(this);
-	// /markets requires a search term; with none, return nothing rather than the whole universe.
-	if (!filter) return { results: [] };
-	const data = (await client.request('GET', '/markets', {
-		qs: { searchTerm: filter },
-	})) as IDataObject;
-	const markets = (data.markets ?? []) as IDataObject[];
-	return {
-		results: markets.map((m) => ({
-			name: `${(m.instrumentName as string) ?? (m.epic as string)} (${m.epic as string})`,
-			value: m.epic as string,
-		})),
-	};
-}
