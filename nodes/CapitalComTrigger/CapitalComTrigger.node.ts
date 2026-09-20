@@ -5,6 +5,7 @@ import {
 	type INodeTypeDescription,
 	type ITriggerFunctions,
 	type ITriggerResponse,
+	NodeConnectionTypes,
 } from 'n8n-workflow';
 
 import { WS_URL } from '../../transport';
@@ -100,7 +101,7 @@ export class CapitalComTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Capital.com (Unofficial) Trigger',
 		name: 'capitalComTrigger',
-		icon: 'file:capitalcom.svg',
+		icon: { light: 'file:capitalcom.svg', dark: 'file:capitalcom.dark.svg' },
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["stream"]}}',
@@ -108,7 +109,7 @@ export class CapitalComTrigger implements INodeType {
 		documentationUrl: 'https://github.com/SimonTarara62/capitalcom-n8n',
 		defaults: { name: 'Capital.com (Unofficial) Trigger' },
 		inputs: [],
-		outputs: ['main'],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [{ name: 'capitalComApi', required: true }],
 		properties: [
 			{

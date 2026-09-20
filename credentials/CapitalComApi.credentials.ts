@@ -9,6 +9,8 @@ export class CapitalComApi implements ICredentialType {
 
 	displayName = 'Capital.com (Unofficial) API';
 
+	icon = { light: 'file:capitalcom.svg', dark: 'file:capitalcom.dark.svg' } as const;
+
 	// eslint-disable-next-line n8n-nodes-base/cred-class-field-documentation-url-miscased -- community package uses a full HTTPS URL, not the main-repo camelCase key form
 	documentationUrl = 'https://github.com/SimonTarara62/capitalcom-n8n';
 

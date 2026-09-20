@@ -1,4 +1,4 @@
-import type { IDataObject, IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import { NodeOperationError, type IDataObject, type IExecuteFunctions, type INodeProperties } from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 
 export const accountOperations: INodeProperties = {
@@ -130,7 +130,10 @@ export async function executeAccount(
 				try {
 					parsed = JSON.parse(leveragesRaw);
 				} catch {
-					throw new Error('Leverages must be valid JSON, e.g. {"CURRENCIES": 20}');
+					throw new NodeOperationError(
+						ctx.getNode(),
+						'Leverages must be valid JSON, e.g. {"CURRENCIES": 20}',
+					);
 				}
 				if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
 					throw new Error('Leverages must be a JSON object, e.g. {"CURRENCIES": 20}');
