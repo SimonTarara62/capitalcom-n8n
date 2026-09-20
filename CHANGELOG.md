@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0-rc.2] - 2026-09-20 — Release candidate
+
+### Fixed
+
+- Parameter errors are re-wrapped as `NodeOperationError` rather than re-thrown, so they
+  stay classified as input problems instead of being reported as broker API failures.
+- The `Resolution` dropdown is alphabetically ordered. The 5-minute option is labelled
+  `Minute 05` so the minute series still reads chronologically. Option **values** are
+  unchanged, so existing workflows are unaffected.
+
 ## [0.3.0-rc.1] - 2026-09-20 — Release candidate
 
 ### Changed
