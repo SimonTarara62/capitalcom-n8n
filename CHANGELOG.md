@@ -3,6 +3,35 @@
 All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0-rc.1] - 2026-09-20 — Release candidate
+
+### Changed
+
+- **Breaking: Node.js 24 is now the minimum** (`engines.node >= 24.0.0`), matching n8n's
+  own requirement.
+- Migrated the build/lint toolchain to `@n8n/node-cli`, with n8n Cloud strict mode enabled.
+- Releases are now published by GitHub Actions with an **npm provenance** attestation via
+  OIDC trusted publishing. No publish tokens are used.
+
+### Removed
+
+- **All runtime dependencies.** The `ws` package is gone and `package.json` no longer has a
+  `dependencies` key at all. The WebSocket Trigger now uses Node's native `WebSocket`.
+  Capital.com authenticates every stream message, so no handshake headers are needed.
+
+### Fixed
+
+- Trigger teardown is now deterministic: an `AbortController` owns the socket, the ping
+  loop and the reconnect backoff, so deactivating a workflow can no longer leave a live
+  broker connection running.
+- Socket errors now report the underlying cause, and close events log their code and reason.
+- Parameter errors stay `NodeOperationError` instead of being mislabelled as API failures.
+
+### Security
+
+- `usableAsTool` is explicitly **`false`**. This node can place real orders, so it is not
+  exposed to AI Agents by default.
+
 ## [0.2.0] - 2026-07-02 — Beta
 
 ### Changed
