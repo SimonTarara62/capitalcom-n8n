@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0-rc.3] - 2026-09-20 — Release candidate
+
+### Changed
+
+- **Breaking:** the **Watchlist** and **Account** ID fields are now resource locators — pick
+  from a live list or enter an ID manually. Saved workflows may need these fields re-selected.
+- Listing operations are named **Get Many** instead of *List*. Internal operation values are
+  unchanged, so existing workflows keep working.
+- Delete-shaped operations now return `{ "deleted": true }`. Closing a position also keeps the
+  response body, because it carries the `dealReference` needed for confirmation polling.
+
+### Added
+
+- **Simplify** option on Positions, Working Orders, Market search/get and Transaction History.
+  Defaults to off, so existing workflows receive the same raw response as before.
+
+### Fixed
+
+- Errors now say what happened and which field to change. Tripping your own **Max Size Guard**
+  or **Allowed EPICs** list is reported as a configuration issue rather than as a broker
+  API failure, which is what previously happened.
+
 ## [0.3.0-rc.2] - 2026-09-20 — Release candidate
 
 ### Fixed
