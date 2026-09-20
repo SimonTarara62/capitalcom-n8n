@@ -1,9 +1,11 @@
 # n8n-nodes-capitalcom
 
-> **🧪 Beta (v0.2.0).** Stable and in real use. It's still `0.x`, so node parameters
-> may change between minor versions — pin a version if you need stability. Trades real
-> money: use a **demo** Capital.com account first, and please
-> [report issues](https://github.com/SimonTarara62/capitalcom-n8n/issues).
+> **🧪 Beta.** Stable and in real use. Latest stable release is `0.2.0`; a `0.3.0`
+> release candidate (`0.3.0-rc.2`, zero runtime dependencies, requires Node.js ≥ 24) is
+> available under the `rc` dist-tag for early testers — see [Installation](#installation).
+> It's still `0.x`, so node parameters may change between minor versions — pin a version
+> if you need stability. Trades real money: use a **demo** Capital.com account first, and
+> please [report issues](https://github.com/SimonTarara62/capitalcom-n8n/issues).
 >
 > **Unofficial.** Independent community project — not affiliated with, endorsed by, or
 > supported by Capital.com.
@@ -52,7 +54,8 @@ Ready-to-import workflows live in [`examples/`](./examples) — market data, a g
 ## Installation
 
 > **Beta (`0.x`):** node parameters may still change between minor versions.
-> Pin a version (`n8n-nodes-capitalcom@0.2.0`) if you need stability between updates.
+> Pin a version (`n8n-nodes-capitalcom@0.2.0` for the latest stable) if you need
+> stability between updates.
 
 **Community Nodes (self-hosted n8n):** Settings → Community Nodes → Install, enter
 `n8n-nodes-capitalcom`, and confirm. Restart n8n if prompted.
@@ -63,7 +66,16 @@ Ready-to-import workflows live in [`examples/`](./examples) — market data, a g
 npm install n8n-nodes-capitalcom
 ```
 
-Requires n8n with Node.js ≥ 20.15.
+This installs `0.2.0` (the current `latest`), which requires n8n with Node.js ≥ 20.15.
+
+**Trying the `0.3.0` release candidate:** raises the Node.js floor to **≥ 24** (matching
+n8n's own requirement) and drops all runtime dependencies — see
+[Compatibility](#compatibility). It's published under the `rc` dist-tag, not `latest`,
+so install it explicitly:
+
+```bash
+npm install n8n-nodes-capitalcom@rc
+```
 
 ## Credentials
 
@@ -130,8 +142,16 @@ Position **Open** and Order **Create** expose safety controls as node parameters
 
 ## Compatibility
 
-Tested against the Capital.com Open API on the `demo` environment. WebSocket streaming
-requires connection headers, so the node depends on the `ws` package.
+Tested against the Capital.com Open API on the `demo` environment.
+
+**Zero runtime dependencies.** Capital.com authenticates every WebSocket message, not
+just the handshake — `cst` and `securityToken` travel inside the subscribe and ping
+payloads themselves (see `transport/wsProtocol.ts`). That means no connection headers
+are needed, so the Trigger streams over Node's native global `WebSocket` instead of a
+third-party client, and `package.json` carries no `dependencies` at all. Validated with
+a 16-minute soak against the Capital.com demo API: 2,432 BTCUSD quotes streamed, the
+connection survived its 8-minute keep-alive ping, and it reconnected cleanly after a
+forced disconnect. Requires Node.js ≥ 24 (see [Installation](#installation)).
 
 ## Resources
 

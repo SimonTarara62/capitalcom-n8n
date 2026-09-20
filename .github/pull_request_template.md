@@ -6,6 +6,6 @@
 
 - [ ] Tests added or updated (`npm test` passes)
 - [ ] `npm run build` and `npx tsc --noEmit` pass
-- [ ] `npm run lint:prepublish` passes
+- [ ] `npm run lint` passes
 - [ ] Docs updated if operations or behaviour changed
 - [ ] No credentials, secrets, or `.env` contents included

@@ -16,15 +16,16 @@ npm install
 npm run build
 ```
 
-Requires Node.js ≥ 20.15 (the version n8n runs on).
+Requires Node.js ≥ 24 (matching n8n's own requirement — see `engines` in
+`package.json`).
 
 ## Checks to run before a PR
 
 ```bash
-npm run build            # tsc + icon copy
-npx tsc --noEmit         # full type-check
-npm run lint:prepublish  # the strict lint the package publishes under
-npm test                 # unit tests (offline, no credentials needed)
+npm run build     # tsc + icon copy, via @n8n/node-cli
+npx tsc --noEmit  # full type-check
+npm run lint      # eslint, in n8n Cloud strict mode
+npm test          # unit tests (offline, no credentials needed)
 ```
 
 All four must pass. `npm test` is fully offline — it uses injected fakes, so no
@@ -61,8 +62,9 @@ never touch live. Without `.env`, the suite skips cleanly.
 
 - **TDD.** Add a failing test, then the code. Behaviour gets a test.
 - **Keep `transport/` n8n-free.** It depends only on its injected `Requester` /
-  `SessionStore` / `Clock` (and `ws` for streaming). Anything n8n-specific lives
-  under `nodes/` or `credentials/`.
+  `SessionStore` / `Clock`, plus Node's native global `WebSocket` for streaming
+  (no third-party WebSocket package). Anything n8n-specific lives under `nodes/`
+  or `credentials/`.
 - **Follow the resource-module pattern** when adding operations — one `actions/<resource>.ts`
   with its operation dropdown, fields, and a small `execute` dispatcher.
 - **Safety stays in node params.** Trading guards (Dry Run, Max Size, Allowed

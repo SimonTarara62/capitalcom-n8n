@@ -12,7 +12,9 @@ surface (functional parity only; no code dependency).
 ## Invariants — do not break these
 
 - **`transport/` is node-agnostic.** No `n8n-workflow` imports there. It depends
-  only on injected `Requester` / `SessionStore` / `Clock` (and `ws` for streaming).
+  only on injected `Requester` / `SessionStore` / `Clock`, plus Node's native
+  global `WebSocket` for streaming — no third-party WebSocket package, and
+  `package.json` has no `dependencies` key at all.
 - **Secrets never get committed.** `.env` is gitignored and only feeds the opt-in
   integration tests; production credentials live in n8n's encrypted store.
 - **Safety stays in node params** and Dry Run defaults ON; Preview never sends.
@@ -22,8 +24,10 @@ surface (functional parity only; no code dependency).
 ## Before opening a PR
 
 ```bash
-npm run build && npx tsc --noEmit && npm run lint:prepublish && npm test
+npm run build && npx tsc --noEmit && npm run lint && npm test
 ```
+
+Requires Node.js ≥ 24 (see `engines` in `package.json`).
 
 ## Adding an operation
 
