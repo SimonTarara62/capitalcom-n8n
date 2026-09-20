@@ -2,7 +2,7 @@ import { RateLimiter, TokenBucket } from '../../transport/rateLimit';
 
 describe('TokenBucket', () => {
 	it('grants tokens up to capacity immediately', async () => {
-		let t = 0;
+		const t = 0;
 		const bucket = new TokenBucket(2, 2, () => t);
 		expect(await bucket.tryAcquire()).toBe(true);
 		expect(await bucket.tryAcquire()).toBe(true);
@@ -21,7 +21,7 @@ describe('TokenBucket', () => {
 
 describe('RateLimiter', () => {
 	it('routes a trading path through the trading bucket', async () => {
-		let t = 0;
+		const t = 0;
 		const rl = new RateLimiter(() => t);
 		// global capacity is high; just assert it resolves true for a normal call
 		expect(await rl.acquire('global')).toBe(true);

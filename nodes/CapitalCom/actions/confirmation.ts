@@ -1,4 +1,4 @@
-import type { IDataObject, IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import { sleep as n8nSleep, type IDataObject, type IExecuteFunctions, type INodeProperties } from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 
 export const confirmationOperations: INodeProperties = {
@@ -50,7 +50,7 @@ export async function waitForConfirmation(
 ): Promise<IDataObject> {
 	const timeoutMs = opts.timeoutMs ?? 15_000;
 	const intervalMs = opts.intervalMs ?? 500;
-	const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+	const sleep = opts.sleep ?? ((ms: number) => n8nSleep(ms));
 	const now = opts.now ?? (() => Date.now());
 	const deadline = now() + timeoutMs;
 

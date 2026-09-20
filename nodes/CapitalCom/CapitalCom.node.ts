@@ -4,6 +4,10 @@ import {
 	type INodeExecutionData,
 	type INodeType,
 	type INodeTypeDescription,
+	type JsonObject,
+	type UsableAsToolDescription,
+	NodeApiError,
+	NodeConnectionTypes,
 	NodeOperationError,
 } from 'n8n-workflow';
 
@@ -20,15 +24,26 @@ export class CapitalCom implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Capital.com (Unofficial)',
 		name: 'capitalCom',
-		icon: 'file:capitalcom.svg',
+		icon: { light: 'file:capitalcom.svg', dark: 'file:capitalcom.dark.svg' },
 		group: ['transform'],
 		version: 1,
+		// This node can place real orders. Do not expose it to AI Agents by default.
+		// See docs/internal/2026-09-19-verified-node-pivot-design.md — flipping this
+		// requires written confirmation from nodes@n8n.io first.
+		//
+		// n8n-workflow's `usableAsTool` type only models the opt-in cases (`true` or a
+		// `UsableAsToolDescription`) — there is no literal `false` member, even though the
+		// lint rule that requires this property to be present only checks for its
+		// existence, not its value. The cast keeps this an explicit, documented `false`
+		// (a real decision) rather than leaving the property out, which reads as "nobody
+		// decided" and would trip the lint rule right back.
+		usableAsTool: false as unknown as UsableAsToolDescription,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with the Capital.com Open API',
 		documentationUrl: 'https://github.com/SimonTarara62/capitalcom-n8n',
 		defaults: { name: 'Capital.com (Unofficial)' },
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [{ name: 'capitalComApi', required: true }],
 		properties: [
 			{
@@ -108,7 +123,13 @@ export class CapitalCom implements INodeType {
 					returnData.push({ json: { error: (error as Error).message }, pairedItem: { item: i } });
 					continue;
 				}
-				throw error;
+				// Already an n8n error with the right classification — re-throw so a parameter
+				// problem stays a NodeOperationError instead of being mislabelled as an API failure.
+				if (error instanceof NodeApiError || error instanceof NodeOperationError) {
+					// eslint-disable-next-line @n8n/community-nodes/require-node-api-error
+					throw error;
+				}
+				throw new NodeApiError(this.getNode(), error as JsonObject);
 			}
 		}
 
