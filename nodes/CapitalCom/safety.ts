@@ -1,4 +1,9 @@
-import type { IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import {
+	NodeOperationError,
+	type IExecuteFunctions,
+	type INode,
+	type INodeProperties,
+} from 'n8n-workflow';
 
 export interface SafetySettings {
 	dryRun: boolean;
@@ -51,11 +56,21 @@ export function readSafety(ctx: IExecuteFunctions, i: number): SafetySettings {
 	return { dryRun, maxSize, allowedEpics };
 }
 
-export function enforceSafety(safety: SafetySettings, target: { epic: string; size: number }): void {
+export function enforceSafety(
+	node: INode,
+	safety: SafetySettings,
+	target: { epic: string; size: number },
+): void {
 	if (safety.maxSize > 0 && target.size > safety.maxSize) {
-		throw new Error(`Size ${target.size} exceeds the Max Size Guard of ${safety.maxSize}`);
+		throw new NodeOperationError(
+			node,
+			`Size ${target.size} is above the Max Size Guard of ${safety.maxSize}`,
+			{ description: "Lower the Size field, or raise Max Size Guard in this node's options." },
+		);
 	}
 	if (safety.allowedEpics.length > 0 && !safety.allowedEpics.includes(target.epic)) {
-		throw new Error(`EPIC ${target.epic} is not in the Allowed EPICs list`);
+		throw new NodeOperationError(node, `EPIC ${target.epic} is not in the Allowed EPICs list`, {
+			description: `Add ${target.epic} to Allowed EPICs in this node's options, or clear the list to allow any market.`,
+		});
 	}
 }

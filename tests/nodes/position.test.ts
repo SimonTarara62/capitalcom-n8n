@@ -61,7 +61,7 @@ it('Open → max-size guard blocks before sending', async () => {
 	const { client, promise } = run({
 		operation: 'open', epic: 'GOLD', direction: 'BUY', size: 10, stopsLimits: {}, dryRun: false, maxSize: 5,
 	});
-	await expect(promise).rejects.toThrow(/exceeds the max size guard/i);
+	await expect(promise).rejects.toThrow(/above the max size guard/i);
 	expect(client.calls).toHaveLength(0);
 });
 

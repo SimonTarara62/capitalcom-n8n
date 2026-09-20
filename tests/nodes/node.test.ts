@@ -221,3 +221,34 @@ it('NodeOperationError from parameter validation propagates unchanged (not wrapp
 		}
 	}
 });
+
+it('NodeOperationError from a tripped safety guard propagates unchanged (not wrapped as NodeApiError)', async () => {
+	// Models the parameter-validation test above: a safety-guard violation is a config
+	// mistake, not a broker failure, and must reach the caller as the same NodeOperationError
+	// — never relabelled NodeApiError by the catch block's generic branch.
+	const { NodeOperationError } = await import('n8n-workflow');
+	const node = new CapitalCom();
+	const ctx = fakeExecute({
+		// Size 3 trips the Max Size Guard (maxSize: 2) inside enforceSafety before any
+		// HTTP request is made, so no httpRequest script is needed here.
+		params: {
+			resource: 'position',
+			operation: 'preview',
+			epic: 'GOLD',
+			direction: 'BUY',
+			size: 3,
+			maxSize: 2,
+			stopsLimits: {},
+		},
+		credentials: { apiKey: 'K', identifier: 'me@example.com', password: 'p', environment: 'demo' },
+	});
+	await expect(node.execute.call(ctx)).rejects.toThrow(NodeOperationError);
+	try {
+		await node.execute.call(ctx);
+	} catch (error) {
+		expect(error).toBeInstanceOf(NodeOperationError);
+		if (error instanceof Error) {
+			expect(error.message).toContain('above the Max Size Guard');
+		}
+	}
+});

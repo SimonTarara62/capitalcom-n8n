@@ -151,13 +151,19 @@ export async function executeOrder(
 		}
 		case 'preview': {
 			const body = buildTradeBody(ctx, i, { includeOrderFields: true });
-			enforceSafety(readSafety(ctx, i), { epic: body.epic as string, size: body.size as number });
+			enforceSafety(ctx.getNode(), readSafety(ctx, i), {
+				epic: body.epic as string,
+				size: body.size as number,
+			});
 			return { preview: true, request: body };
 		}
 		case 'create': {
 			const safety = readSafety(ctx, i);
 			const body = buildTradeBody(ctx, i, { includeOrderFields: true });
-			enforceSafety(safety, { epic: body.epic as string, size: body.size as number });
+			enforceSafety(ctx.getNode(), safety, {
+				epic: body.epic as string,
+				size: body.size as number,
+			});
 			if (safety.dryRun) return { dryRun: true, request: body };
 			const result = (await client.request('POST', '/workingorders', { body })) as IDataObject;
 			if (
