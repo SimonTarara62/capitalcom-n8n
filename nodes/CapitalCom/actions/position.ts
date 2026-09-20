@@ -43,18 +43,30 @@ const stopsLimitsCollection: INodeProperties = {
 	displayName: 'Stops & Limits',
 	name: 'stopsLimits',
 	type: 'collection',
-	placeholder: 'Add Stop / Limit',
+	placeholder: 'e.g. Stop Level',
 	default: {},
 	displayOptions: { show: { resource: ['position'], operation: ['open', 'preview', 'amend'] } },
 	options: [
-		{ displayName: 'Guaranteed Stop', name: 'guaranteedStop', type: 'boolean', default: false },
+		{
+			displayName: 'Guaranteed Stop',
+			name: 'guaranteedStop',
+			type: 'boolean',
+			default: false,
+			description: 'Whether the broker guarantees the stop level even if the market gaps past it',
+		},
 		{ displayName: 'Profit Amount', name: 'profitAmount', type: 'number', default: 0 },
 		{ displayName: 'Profit Distance', name: 'profitDistance', type: 'number', default: 0 },
 		{ displayName: 'Profit Level', name: 'profitLevel', type: 'number', default: 0 },
 		{ displayName: 'Stop Amount', name: 'stopAmount', type: 'number', default: 0 },
 		{ displayName: 'Stop Distance', name: 'stopDistance', type: 'number', default: 0 },
 		{ displayName: 'Stop Level', name: 'stopLevel', type: 'number', default: 0 },
-		{ displayName: 'Trailing Stop', name: 'trailingStop', type: 'boolean', default: false },
+		{
+			displayName: 'Trailing Stop',
+			name: 'trailingStop',
+			type: 'boolean',
+			default: false,
+			description: 'Whether the stop should follow the market as the position moves into profit',
+		},
 	],
 };
 
