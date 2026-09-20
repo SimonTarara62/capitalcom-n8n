@@ -1,5 +1,10 @@
+// Test-only: n8n Cloud's no-dependency rules govern the PUBLISHED node. Tests are
+// never packaged (package.json `files` ships only dist/LICENSE/README/CHANGELOG).
+// eslint-disable-next-line @n8n/community-nodes/no-restricted-imports
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+// eslint-disable-next-line @n8n/community-nodes/no-restricted-imports
 import { tmpdir } from 'node:os';
+// eslint-disable-next-line @n8n/community-nodes/no-restricted-imports
 import { join } from 'node:path';
 import {
 	CapitalClient,
@@ -11,8 +16,14 @@ import { fetchRequester } from './realRequester';
 
 /** Reads DEMO creds from the environment (.env). Returns null if any are missing. */
 export function loadDemoCreds(): CapitalCredentials | null {
+	// Test-only: `process` is a Node global the published node avoids for cloud
+	// portability; this integration harness reads local `.env` demo creds and is
+	// never packaged (package.json `files` ships only dist/LICENSE/README/CHANGELOG).
+	// eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
 	const apiKey = process.env.CAP_API_KEY;
+	// eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
 	const identifier = process.env.CAP_IDENTIFIER;
+	// eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
 	const password = process.env.CAP_API_PASSWORD;
 	if (!apiKey || !identifier || !password) return null;
 	// Hard-coded demo: integration tests must NEVER touch the live environment.

@@ -31,7 +31,7 @@ it('auto-logs-in then sends auth headers on a GET', async () => {
 it('reuses a cached session and refreshes lastUsedAt', async () => {
 	const store = new MemoryStore();
 	store.set({ cst: 'C', xSecurityToken: 'T', lastUsedAt: 0 });
-	let t = 1000;
+	const t = 1000;
 	const req = new FakeRequester().enqueue({ statusCode: 200, headers: {}, body: { ok: true } });
 	const client = new CapitalClient({ credentials: creds, requester: req.fn, store, now: () => t });
 

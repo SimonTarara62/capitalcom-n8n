@@ -82,6 +82,11 @@ async function startTrigger(params: Record<string, unknown> = PRICES_PARAMS) {
 beforeEach(() => {
 	FakeSocket.instances = [];
 	startedTriggers.length = 0;
+	// Test-only: the trigger node reads the ambient `WebSocket` global at runtime (the
+	// n8n Cloud sandbox's own restriction on the published node), so stubbing it here is
+	// how this suite drives the trigger without a real socket. Never packaged
+	// (package.json `files` ships only dist/LICENSE/README/CHANGELOG).
+	// eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
 	(globalThis as { WebSocket: unknown }).WebSocket = FakeSocket;
 });
 

@@ -21,6 +21,10 @@ describeIfCreds('integration: trading round-trip on demo', () => {
 		expect(opened.dealReference).toBeTruthy();
 
 		// Give the broker a moment, then find and close the resulting position.
+		// Test-only: this integration suite isn't packaged (package.json `files` ships
+		// only dist/LICENSE/README/CHANGELOG), so the published node's ban on raw timers
+		// (in favor of n8n-workflow's `sleep`) doesn't apply here.
+		// eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
 		await new Promise((r) => setTimeout(r, 1500));
 		const positions = (await client.request('GET', '/positions')) as {
 			positions?: Array<{ position: { dealId: string }; market: { epic: string } }>;
@@ -39,6 +43,8 @@ describeIfCreds('integration: trading round-trip on demo', () => {
 		})) as { dealReference?: string };
 		expect(created.dealReference).toBeTruthy();
 
+		// Test-only: see the eslint-disable note above — this suite is never packaged.
+		// eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
 		await new Promise((r) => setTimeout(r, 1500));
 		const orders = (await client.request('GET', '/workingorders')) as {
 			workingOrders?: Array<{ workingOrderData: { dealId: string }; marketData: { epic: string } }>;

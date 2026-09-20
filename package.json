@@ -27,9 +27,8 @@
   "scripts": {
     "build": "n8n-node build",
     "dev": "n8n-node dev",
-    "lint": "eslint . --ignore-pattern 'tests/**'",
-    "lintfix": "eslint . --fix --ignore-pattern 'tests/**'",
-    "lint:strict": "n8n-node lint",
+    "lint": "n8n-node lint",
+    "lintfix": "n8n-node lint --fix",
     "release": "n8n-node release",
     "test": "jest",
     "test:integration": "jest --config jest.integration.config.js"
