@@ -57,7 +57,6 @@
     "@n8n/node-cli": "0.48.5",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.19.21",
-    "@types/ws": "^8.18.1",
     "@typescript-eslint/parser": "^7.18.0",
     "dotenv": "^16.6.1",
     "eslint": "^8.57.0",
@@ -67,8 +66,5 @@
     "prettier": "^3.3.3",
     "ts-jest": "^29.4.11",
     "typescript": "^5.6.3"
-  },
-  "dependencies": {
-    "ws": "^8.21.0"
   }
 }
