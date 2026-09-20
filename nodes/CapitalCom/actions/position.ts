@@ -1,6 +1,12 @@
-import type { IDataObject, IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import {
+	NodeOperationError,
+	type IDataObject,
+	type IExecuteFunctions,
+	type INodeProperties,
+} from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 import { enforceSafety, readSafety, safetyFields } from '../safety';
+import { simplifyPosition } from '../simplify';
 import { buildStopsLimits, buildTradeBody } from '../tradeBody';
 import { waitForConfirmation } from './confirmation';
 
@@ -14,7 +20,7 @@ export const positionOperations: INodeProperties = {
 		{ name: 'Amend', value: 'amend', action: 'Amend a position' },
 		{ name: 'Close', value: 'close', action: 'Close a position' },
 		{ name: 'Get', value: 'get', action: 'Get a position' },
-		{ name: 'List', value: 'list', action: 'List positions' },
+		{ name: 'Get Many', value: 'list', action: 'Get many positions' },
 		{ name: 'Open', value: 'open', action: 'Open a position' },
 		{ name: 'Preview', value: 'preview', action: 'Preview a position without sending' },
 	],
@@ -38,18 +44,30 @@ const stopsLimitsCollection: INodeProperties = {
 	displayName: 'Stops & Limits',
 	name: 'stopsLimits',
 	type: 'collection',
-	placeholder: 'Add Stop / Limit',
+	placeholder: 'e.g. Stop Level',
 	default: {},
 	displayOptions: { show: { resource: ['position'], operation: ['open', 'preview', 'amend'] } },
 	options: [
-		{ displayName: 'Guaranteed Stop', name: 'guaranteedStop', type: 'boolean', default: false },
+		{
+			displayName: 'Guaranteed Stop',
+			name: 'guaranteedStop',
+			type: 'boolean',
+			default: false,
+			description: 'Whether the broker guarantees the stop level even if the market gaps past it',
+		},
 		{ displayName: 'Profit Amount', name: 'profitAmount', type: 'number', default: 0 },
 		{ displayName: 'Profit Distance', name: 'profitDistance', type: 'number', default: 0 },
 		{ displayName: 'Profit Level', name: 'profitLevel', type: 'number', default: 0 },
 		{ displayName: 'Stop Amount', name: 'stopAmount', type: 'number', default: 0 },
 		{ displayName: 'Stop Distance', name: 'stopDistance', type: 'number', default: 0 },
 		{ displayName: 'Stop Level', name: 'stopLevel', type: 'number', default: 0 },
-		{ displayName: 'Trailing Stop', name: 'trailingStop', type: 'boolean', default: false },
+		{
+			displayName: 'Trailing Stop',
+			name: 'trailingStop',
+			type: 'boolean',
+			default: false,
+			description: 'Whether the stop should follow the market as the position moves into profit',
+		},
 	],
 };
 
@@ -100,6 +118,15 @@ export const positionFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['position'], operation: ['list'] } },
 		description: 'Max number of results to return',
 	},
+	{
+		displayName: 'Simplify',
+		name: 'simple',
+		type: 'boolean',
+		default: false,
+		description:
+			'Whether to return a simplified version of the response instead of the raw data',
+		displayOptions: { show: { resource: ['position'], operation: ['list'] } },
+	},
 	...safetyFields(['open']),
 ];
 
@@ -115,6 +142,9 @@ export async function executePosition(
 			const limit = ctx.getNodeParameter('limit', i, 50) as number;
 			const data = (await client.request('GET', '/positions')) as IDataObject;
 			const positions = Array.isArray(data.positions) ? data.positions.slice(0, limit) : [];
+			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+				return { positions: (positions as IDataObject[]).map(simplifyPosition) };
+			}
 			return { ...data, positions };
 		}
 		case 'get': {
@@ -123,13 +153,19 @@ export async function executePosition(
 		}
 		case 'preview': {
 			const body = buildTradeBody(ctx, i, { includeOrderFields: false });
-			enforceSafety(readSafety(ctx, i), { epic: body.epic as string, size: body.size as number });
+			enforceSafety(ctx.getNode(), readSafety(ctx, i), {
+				epic: body.epic as string,
+				size: body.size as number,
+			});
 			return { preview: true, request: body };
 		}
 		case 'open': {
 			const safety = readSafety(ctx, i);
 			const body = buildTradeBody(ctx, i, { includeOrderFields: false });
-			enforceSafety(safety, { epic: body.epic as string, size: body.size as number });
+			enforceSafety(ctx.getNode(), safety, {
+				epic: body.epic as string,
+				size: body.size as number,
+			});
 			if (safety.dryRun) return { dryRun: true, request: body };
 			const result = (await client.request('POST', '/positions', { body })) as IDataObject;
 			if (
@@ -148,9 +184,15 @@ export async function executePosition(
 		}
 		case 'close': {
 			const dealId = ctx.getNodeParameter('dealId', i) as string;
-			return client.request('DELETE', `/positions/${encodeURIComponent(dealId)}`);
+			const body = (await client.request(
+				'DELETE',
+				`/positions/${encodeURIComponent(dealId)}`,
+			)) as IDataObject;
+			return { ...body, deleted: true };
 		}
 		default:
-			throw new Error(`Unknown position operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported position operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

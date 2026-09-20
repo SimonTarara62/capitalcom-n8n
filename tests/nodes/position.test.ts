@@ -18,6 +18,45 @@ it('List → GET /positions, truncates to limit', async () => {
 	expect(out.positions).toHaveLength(1);
 });
 
+it('List with Simplify off (default) → returns the raw response byte-identical to before', async () => {
+	const raw = {
+		positions: [
+			{
+				position: {
+					dealId: 'd1', direction: 'BUY', size: 1, level: 100, upl: 0, currency: 'USD',
+					createdDateUTC: 't', leverage: 2, contractSize: 1,
+				},
+				market: { epic: 'GOLD', instrumentName: 'Gold', marketStatus: 'TRADEABLE', lotSize: 1 },
+			},
+		],
+	};
+	const { promise } = run({ operation: 'list', limit: 50 }, { 'GET /positions': raw });
+	await expect(promise).resolves.toEqual(raw);
+});
+
+it('List with Simplify on → returns the mapped shape', async () => {
+	const raw = {
+		positions: [
+			{
+				position: {
+					dealId: 'd1', direction: 'BUY', size: 1, level: 100, upl: 0, currency: 'USD',
+					createdDateUTC: 't', leverage: 2, contractSize: 1,
+				},
+				market: { epic: 'GOLD', instrumentName: 'Gold', marketStatus: 'TRADEABLE', lotSize: 1 },
+			},
+		],
+	};
+	const { promise } = run({ operation: 'list', limit: 50, simple: true }, { 'GET /positions': raw });
+	await expect(promise).resolves.toEqual({
+		positions: [
+			{
+				dealId: 'd1', direction: 'BUY', size: 1, level: 100, upl: 0, currency: 'USD',
+				createdDateUTC: 't', epic: 'GOLD', instrumentName: 'Gold', marketStatus: 'TRADEABLE',
+			},
+		],
+	});
+});
+
 it('Get → GET /positions/{dealId}', async () => {
 	const { client, promise } = run({ operation: 'get', dealId: 'D1' });
 	await promise;
@@ -61,7 +100,7 @@ it('Open → max-size guard blocks before sending', async () => {
 	const { client, promise } = run({
 		operation: 'open', epic: 'GOLD', direction: 'BUY', size: 10, stopsLimits: {}, dryRun: false, maxSize: 5,
 	});
-	await expect(promise).rejects.toThrow(/exceeds the max size guard/i);
+	await expect(promise).rejects.toThrow(/above the max size guard/i);
 	expect(client.calls).toHaveLength(0);
 });
 

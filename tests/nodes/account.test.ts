@@ -123,3 +123,45 @@ it('Transaction History → GET /history/transactions with qs', async () => {
 		{ qs: { lastPeriod: 100, type: 'DEPOSIT' } },
 	]);
 });
+
+it('Transaction History with Simplify off (default) → returns the raw response byte-identical to before', async () => {
+	const raw = {
+		transactions: [
+			{
+				date: 't1', dateUtc: 't1utc', instrumentName: 'NATURALGAS', transactionType: 'TRADE',
+				note: 'Trade closed', reference: 'R1', size: '1.05', currency: 'USD',
+			},
+		],
+	};
+	const { promise } = run(
+		{ operation: 'transactionHistory', lastPeriod: 100, transactionType: '', fromDate: '', toDate: '' },
+		{ responses: { 'GET /history/transactions': raw } },
+	);
+	await expect(promise).resolves.toEqual(raw);
+});
+
+it('Transaction History with Simplify on → returns the mapped shape', async () => {
+	const raw = {
+		transactions: [
+			{
+				date: 't1', dateUtc: 't1utc', instrumentName: 'NATURALGAS', transactionType: 'TRADE',
+				note: 'Trade closed', reference: 'R1', size: '1.05', currency: 'USD',
+			},
+		],
+	};
+	const { promise } = run(
+		{
+			operation: 'transactionHistory', lastPeriod: 100, transactionType: '', fromDate: '', toDate: '',
+			simple: true,
+		},
+		{ responses: { 'GET /history/transactions': raw } },
+	);
+	await expect(promise).resolves.toEqual({
+		transactions: [
+			{
+				date: 't1', dateUtc: 't1utc', instrumentName: 'NATURALGAS', transactionType: 'TRADE',
+				size: '1.05', currency: 'USD',
+			},
+		],
+	});
+});

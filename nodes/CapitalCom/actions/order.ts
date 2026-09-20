@@ -1,6 +1,12 @@
-import type { IDataObject, IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import {
+	NodeOperationError,
+	type IDataObject,
+	type IExecuteFunctions,
+	type INodeProperties,
+} from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 import { enforceSafety, readSafety, safetyFields } from '../safety';
+import { simplifyOrder } from '../simplify';
 import { buildStopsLimits, buildTradeBody } from '../tradeBody';
 import { waitForConfirmation } from './confirmation';
 
@@ -14,7 +20,7 @@ export const orderOperations: INodeProperties = {
 		{ name: 'Amend', value: 'amend', action: 'Amend a working order' },
 		{ name: 'Cancel', value: 'cancel', action: 'Cancel a working order' },
 		{ name: 'Create', value: 'create', action: 'Create a working order' },
-		{ name: 'List', value: 'list', action: 'List working orders' },
+		{ name: 'Get Many', value: 'list', action: 'Get many working orders' },
 		{ name: 'Preview', value: 'preview', action: 'Preview a working order without sending' },
 	],
 	default: 'list',
@@ -24,18 +30,30 @@ const stopsLimitsCollection: INodeProperties = {
 	displayName: 'Stops & Limits',
 	name: 'stopsLimits',
 	type: 'collection',
-	placeholder: 'Add Stop / Limit',
+	placeholder: 'e.g. Stop Level',
 	default: {},
 	displayOptions: { show: { resource: ['order'], operation: ['create', 'preview', 'amend'] } },
 	options: [
-		{ displayName: 'Guaranteed Stop', name: 'guaranteedStop', type: 'boolean', default: false },
+		{
+			displayName: 'Guaranteed Stop',
+			name: 'guaranteedStop',
+			type: 'boolean',
+			default: false,
+			description: 'Whether the broker guarantees the stop level even if the market gaps past it',
+		},
 		{ displayName: 'Profit Amount', name: 'profitAmount', type: 'number', default: 0 },
 		{ displayName: 'Profit Distance', name: 'profitDistance', type: 'number', default: 0 },
 		{ displayName: 'Profit Level', name: 'profitLevel', type: 'number', default: 0 },
 		{ displayName: 'Stop Amount', name: 'stopAmount', type: 'number', default: 0 },
 		{ displayName: 'Stop Distance', name: 'stopDistance', type: 'number', default: 0 },
 		{ displayName: 'Stop Level', name: 'stopLevel', type: 'number', default: 0 },
-		{ displayName: 'Trailing Stop', name: 'trailingStop', type: 'boolean', default: false },
+		{
+			displayName: 'Trailing Stop',
+			name: 'trailingStop',
+			type: 'boolean',
+			default: false,
+			description: 'Whether the stop should follow the market as the position moves into profit',
+		},
 	],
 };
 
@@ -125,6 +143,15 @@ export const orderFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['order'], operation: ['list'] } },
 		description: 'Max number of results to return',
 	},
+	{
+		displayName: 'Simplify',
+		name: 'simple',
+		type: 'boolean',
+		default: false,
+		description:
+			'Whether to return a simplified version of the response instead of the raw data',
+		displayOptions: { show: { resource: ['order'], operation: ['list'] } },
+	},
 	...safetyFields(['create']),
 ];
 
@@ -142,17 +169,26 @@ export async function executeOrder(
 			const workingOrders = Array.isArray(data.workingOrders)
 				? data.workingOrders.slice(0, limit)
 				: [];
+			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+				return { workingOrders: (workingOrders as IDataObject[]).map(simplifyOrder) };
+			}
 			return { ...data, workingOrders };
 		}
 		case 'preview': {
 			const body = buildTradeBody(ctx, i, { includeOrderFields: true });
-			enforceSafety(readSafety(ctx, i), { epic: body.epic as string, size: body.size as number });
+			enforceSafety(ctx.getNode(), readSafety(ctx, i), {
+				epic: body.epic as string,
+				size: body.size as number,
+			});
 			return { preview: true, request: body };
 		}
 		case 'create': {
 			const safety = readSafety(ctx, i);
 			const body = buildTradeBody(ctx, i, { includeOrderFields: true });
-			enforceSafety(safety, { epic: body.epic as string, size: body.size as number });
+			enforceSafety(ctx.getNode(), safety, {
+				epic: body.epic as string,
+				size: body.size as number,
+			});
 			if (safety.dryRun) return { dryRun: true, request: body };
 			const result = (await client.request('POST', '/workingorders', { body })) as IDataObject;
 			if (
@@ -177,6 +213,8 @@ export async function executeOrder(
 			return client.request('DELETE', `/workingorders/${encodeURIComponent(dealId)}`);
 		}
 		default:
-			throw new Error(`Unknown order operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported order operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

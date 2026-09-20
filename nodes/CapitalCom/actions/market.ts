@@ -1,5 +1,11 @@
-import type { IDataObject, IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import {
+	NodeOperationError,
+	type IDataObject,
+	type IExecuteFunctions,
+	type INodeProperties,
+} from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
+import { simplifyMarket } from '../simplify';
 
 export const marketOperations: INodeProperties = {
 	displayName: 'Operation',
@@ -119,6 +125,15 @@ export const marketFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['market'], operation: ['search', 'navigationNode'] } },
 		description: 'Max number of results to return',
 	},
+	{
+		displayName: 'Simplify',
+		name: 'simple',
+		type: 'boolean',
+		default: false,
+		description:
+			'Whether to return a simplified version of the response instead of the raw data',
+		displayOptions: { show: { resource: ['market'], operation: ['search', 'get'] } },
+	},
 ];
 
 export async function executeMarket(
@@ -138,11 +153,21 @@ export async function executeMarket(
 			if (epics) qs.epics = epics;
 			const data = (await client.request('GET', '/markets', { qs })) as IDataObject;
 			const markets = Array.isArray(data.markets) ? data.markets.slice(0, limit) : [];
+			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+				return { markets: (markets as IDataObject[]).map(simplifyMarket) };
+			}
 			return { ...data, markets };
 		}
 		case 'get': {
 			const epic = ctx.getNodeParameter('epic', i) as string;
-			return client.request('GET', `/markets/${encodeURIComponent(epic)}`);
+			const data = (await client.request(
+				'GET',
+				`/markets/${encodeURIComponent(epic)}`,
+			)) as IDataObject;
+			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+				return simplifyMarket(data);
+			}
+			return data;
 		}
 		case 'getPrices': {
 			const epic = ctx.getNodeParameter('epic', i) as string;
@@ -163,7 +188,9 @@ export async function executeMarket(
 				.map((s) => s.trim())
 				.filter(Boolean);
 			if (ids.length === 0) {
-				throw new Error('At least one market ID is required');
+				throw new NodeOperationError(ctx.getNode(), 'No market IDs were given', {
+					description: 'Add at least one EPIC to the Market IDs field, e.g. GOLD.',
+				});
 			}
 			if (ids.length === 1) {
 				return client.request('GET', `/clientsentiment/${encodeURIComponent(ids[0])}`);
@@ -180,6 +207,8 @@ export async function executeMarket(
 			return client.request('GET', `/marketnavigation/${encodeURIComponent(nodeId)}`, { qs });
 		}
 		default:
-			throw new Error(`Unknown market operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported market operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

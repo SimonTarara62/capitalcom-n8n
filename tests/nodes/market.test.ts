@@ -19,10 +19,81 @@ it('Search → GET /markets with qs, truncates markets to limit', async () => {
 	expect(client.calls[0].args).toEqual(['GET', '/markets', { qs: { searchTerm: 'gold' } }]);
 });
 
+it('Search with Simplify off (default) → returns the raw response byte-identical to before', async () => {
+	const raw = {
+		markets: [
+			{
+				epic: 'GOLD', instrumentName: 'Gold', instrumentType: 'COMMODITIES', marketStatus: 'TRADEABLE',
+				bid: 1900, offer: 1901, percentageChange: 0.1, netChange: 1.9, high: 1905, low: 1895,
+				lotSize: 1, delayTime: 0,
+			},
+		],
+	};
+	const { promise } = run(
+		{ operation: 'search', searchTerm: '', epics: '', limit: 50 },
+		{ 'GET /markets': raw },
+	);
+	await expect(promise).resolves.toEqual(raw);
+});
+
+it('Search with Simplify on → returns the mapped shape', async () => {
+	const raw = {
+		markets: [
+			{
+				epic: 'GOLD', instrumentName: 'Gold', instrumentType: 'COMMODITIES', marketStatus: 'TRADEABLE',
+				bid: 1900, offer: 1901, percentageChange: 0.1, netChange: 1.9, high: 1905, low: 1895,
+				lotSize: 1, delayTime: 0,
+			},
+		],
+	};
+	const { promise } = run(
+		{ operation: 'search', searchTerm: '', epics: '', limit: 50, simple: true },
+		{ 'GET /markets': raw },
+	);
+	await expect(promise).resolves.toEqual({
+		markets: [
+			{
+				epic: 'GOLD', instrumentName: 'Gold', instrumentType: 'COMMODITIES', marketStatus: 'TRADEABLE',
+				bid: 1900, offer: 1901, percentageChange: 0.1, netChange: 1.9, high: 1905, low: 1895,
+			},
+		],
+	});
+});
+
 it('Get → GET /markets/{epic} (url-encoded)', async () => {
 	const { client, promise } = run({ operation: 'get', epic: 'GOLD' });
 	await promise;
 	expect(client.calls[0].args.slice(0, 2)).toEqual(['GET', '/markets/GOLD']);
+});
+
+it('Get with Simplify off (default) → returns the raw response byte-identical to before', async () => {
+	const raw = {
+		instrument: { epic: 'SILVER', name: 'Silver', type: 'COMMODITIES', lotSize: 1 },
+		dealingRules: { minDealSize: { unit: 'POINTS', value: 0.1 } },
+		snapshot: { marketStatus: 'TRADEABLE', bid: 24.2, offer: 24.22, high: 24.4, low: 24.19 },
+	};
+	const { promise } = run({ operation: 'get', epic: 'SILVER' }, { 'GET /markets/SILVER': raw });
+	await expect(promise).resolves.toEqual(raw);
+});
+
+it('Get with Simplify on → returns the mapped shape (nested instrument/snapshot flattened)', async () => {
+	const raw = {
+		instrument: { epic: 'SILVER', name: 'Silver', type: 'COMMODITIES', lotSize: 1 },
+		dealingRules: { minDealSize: { unit: 'POINTS', value: 0.1 } },
+		snapshot: {
+			marketStatus: 'TRADEABLE', bid: 24.2, offer: 24.22, high: 24.4, low: 24.19,
+			netChange: -0.1, percentageChange: -0.4,
+		},
+	};
+	const { promise } = run(
+		{ operation: 'get', epic: 'SILVER', simple: true },
+		{ 'GET /markets/SILVER': raw },
+	);
+	await expect(promise).resolves.toEqual({
+		epic: 'SILVER', instrumentName: 'Silver', instrumentType: 'COMMODITIES',
+		marketStatus: 'TRADEABLE', bid: 24.2, offer: 24.22, high: 24.4, low: 24.19,
+		netChange: -0.1, percentageChange: -0.4,
+	});
 });
 
 it('Get Prices → GET /prices/{epic} with resolution/max and optional from/to', async () => {
@@ -60,7 +131,7 @@ it('Get Sentiment → many ids use batch query', async () => {
 
 it('Get Sentiment → empty/whitespace marketIds rejects with a descriptive error', async () => {
 	const { promise } = run({ operation: 'getSentiment', marketIds: '   ' });
-	await expect(promise).rejects.toThrow(/at least one market id/i);
+	await expect(promise).rejects.toThrow(/no market ids were given/i);
 });
 
 it('Navigation Root → GET /marketnavigation', async () => {

@@ -32,32 +32,48 @@ it('Add Market → PUT /watchlists/{id} with epic', async () => {
 	expect(client.calls[0].args).toEqual(['PUT', '/watchlists/w1', { body: { epic: 'GOLD' } }]);
 });
 
-it('Remove Market → DELETE /watchlists/{id}/{epic}, empty body → status removed', async () => {
+it('Remove Market → DELETE /watchlists/{id}/{epic}, empty body → { deleted: true }', async () => {
 	const { client, promise } = run(
 		{ operation: 'removeMarket', watchlistId: 'w1', epic: 'GOLD' },
 		{ 'DELETE /watchlists/w1/GOLD': '' },
 	);
 	const out = await promise;
 	expect(client.calls[0].args.slice(0, 2)).toEqual(['DELETE', '/watchlists/w1/GOLD']);
-	expect(out).toEqual({ status: 'removed' });
+	expect(out).toEqual({ deleted: true });
 });
 
-it('Delete → DELETE /watchlists/{id}, empty body → status deleted', async () => {
+it('Delete → DELETE /watchlists/{id}, empty body → { deleted: true }', async () => {
 	const { client, promise } = run(
 		{ operation: 'delete', watchlistId: 'w1' },
 		{ 'DELETE /watchlists/w1': '' },
 	);
 	const out = await promise;
 	expect(client.calls[0].args.slice(0, 2)).toEqual(['DELETE', '/watchlists/w1']);
-	expect(out).toEqual({ status: 'deleted' });
+	expect(out).toEqual({ deleted: true });
 });
 
-it('Remove Market → DELETE with real body passes through (no fallback)', async () => {
+it('Remove Market → DELETE with real body still returns { deleted: true } (standardised output)', async () => {
 	const { client, promise } = run(
 		{ operation: 'removeMarket', watchlistId: 'w1', epic: 'GOLD' },
 		{ 'DELETE /watchlists/w1/GOLD': { dealReference: 'X' } },
 	);
 	const out = await promise;
 	expect(client.calls[0].args.slice(0, 2)).toEqual(['DELETE', '/watchlists/w1/GOLD']);
-	expect(out).toEqual({ dealReference: 'X' });
+	expect(out).toEqual({ deleted: true });
+});
+
+// Guards the resource-locator conversion: watchlistId is now read with `extractValue: true`
+// (see nodes/CapitalCom/actions/watchlist.ts). A resource-locator-shaped value must resolve
+// to the identical request as the plain-string value it replaces — if a call site forgot
+// `extractValue`, `id` would be the whole `{ mode, value }` object and the URL would come out
+// as `/watchlists/[object%20Object]`, a malformed request against the live broker API.
+it('Get with a resource-locator-shaped watchlistId produces the same URL as a plain string (extractValue guard)', async () => {
+	const plain = run({ operation: 'get', watchlistId: 'w1' });
+	await plain.promise;
+
+	const locator = run({ operation: 'get', watchlistId: { mode: 'list', value: 'w1' } });
+	await locator.promise;
+
+	expect(locator.client.calls[0].args.slice(0, 2)).toEqual(['GET', '/watchlists/w1']);
+	expect(locator.client.calls[0].args.slice(0, 2)).toEqual(plain.client.calls[0].args.slice(0, 2));
 });

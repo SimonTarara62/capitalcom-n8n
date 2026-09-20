@@ -18,6 +18,51 @@ it('List → GET /workingorders, truncates to limit', async () => {
 	expect(out.workingOrders).toHaveLength(1);
 });
 
+it('List with Simplify off (default) → returns the raw response byte-identical to before', async () => {
+	const raw = {
+		workingOrders: [
+			{
+				workingOrderData: {
+					dealId: 'w1', direction: 'BUY', orderSize: 1, orderLevel: 999999, orderType: 'STOP',
+					currencyCode: 'USD', stopDistance: -3, profitDistance: 3, createdDateUTC: 't',
+					guaranteedStop: false,
+				},
+				marketData: { epic: 'SILVER', instrumentName: 'Silver', marketStatus: 'TRADEABLE', lotSize: 1 },
+			},
+		],
+	};
+	const { promise } = run({ operation: 'list', limit: 50 }, { 'GET /workingorders': raw });
+	await expect(promise).resolves.toEqual(raw);
+});
+
+it('List with Simplify on → returns the mapped shape', async () => {
+	const raw = {
+		workingOrders: [
+			{
+				workingOrderData: {
+					dealId: 'w1', direction: 'BUY', orderSize: 1, orderLevel: 999999, orderType: 'STOP',
+					currencyCode: 'USD', stopDistance: -3, profitDistance: 3, createdDateUTC: 't',
+					guaranteedStop: false,
+				},
+				marketData: { epic: 'SILVER', instrumentName: 'Silver', marketStatus: 'TRADEABLE', lotSize: 1 },
+			},
+		],
+	};
+	const { promise } = run(
+		{ operation: 'list', limit: 50, simple: true },
+		{ 'GET /workingorders': raw },
+	);
+	await expect(promise).resolves.toEqual({
+		workingOrders: [
+			{
+				dealId: 'w1', direction: 'BUY', orderSize: 1, orderLevel: 999999, orderType: 'STOP',
+				currencyCode: 'USD', stopDistance: -3, profitDistance: 3, createdDateUTC: 't',
+				epic: 'SILVER', instrumentName: 'Silver', marketStatus: 'TRADEABLE',
+			},
+		],
+	});
+});
+
 it('Preview → returns the order request body, sends nothing', async () => {
 	const { client, promise } = run({
 		operation: 'preview', epic: 'GOLD', direction: 'BUY', size: 1, orderType: 'LIMIT', level: 1900, stopsLimits: {},

@@ -131,6 +131,39 @@ it('routes a Watchlist: Create through the node', async () => {
 	]);
 });
 
+// End-to-end guard for the resource-locator conversion (Task 5): drives the real node.execute()
+// → executeWatchlist() → CapitalClient → fake HTTP transport, with watchlistId given in the
+// `{ mode, value }` shape n8n actually stores for a resourceLocator param. If any call site had
+// missed `extractValue: true`, `id` would be the whole object, encodeURIComponent would turn it
+// into "%5Bobject%20Object%5D", and this test would hit the 404 fallback instead of /watchlists/w1.
+it('Watchlist: Get with a resource-locator-shaped watchlistId reaches the same URL a plain string would (extractValue guard)', async () => {
+	const node = new CapitalCom();
+	const urlsHit: string[] = [];
+	const http = async (opts: Record<string, unknown>) => {
+		const url = String(opts.url);
+		urlsHit.push(`${opts.method} ${url}`);
+		if (url.endsWith('/session') && opts.method === 'POST') {
+			return { statusCode: 200, headers: { CST: 'C', 'X-SECURITY-TOKEN': 'T' }, body: {} };
+		}
+		if (url.endsWith('/watchlists/w1') && opts.method === 'GET') {
+			return { statusCode: 200, headers: {}, body: { id: 'w1', name: 'Favourites' } };
+		}
+		return { statusCode: 404, headers: {}, body: { errorCode: 'not.found' } };
+	};
+	const ctx = fakeExecute({
+		params: {
+			resource: 'watchlist',
+			operation: 'get',
+			watchlistId: { mode: 'list', value: 'w1' }, // resourceLocator shape, as n8n stores it
+		},
+		credentials: { apiKey: 'K', identifier: 'me@example.com', password: 'p', environment: 'demo' },
+		httpRequest: http,
+	});
+	const out = await node.execute.call(ctx);
+	expect(out).toEqual([[{ json: { id: 'w1', name: 'Favourites' }, pairedItem: { item: 0 } }]]);
+	expect(urlsHit.some((u) => u.endsWith('/watchlists/w1'))).toBe(true);
+});
+
 it('routes a Position: Open through the node and returns the deal reference', async () => {
 	const node = new CapitalCom();
 	const http = async (opts: Record<string, unknown>) => {
@@ -218,6 +251,37 @@ it('NodeOperationError from parameter validation propagates unchanged (not wrapp
 		expect(error).toBeInstanceOf(NodeOperationError);
 		if (error instanceof Error) {
 			expect(error.message).toContain('Leverages must be valid JSON');
+		}
+	}
+});
+
+it('NodeOperationError from a tripped safety guard propagates unchanged (not wrapped as NodeApiError)', async () => {
+	// Models the parameter-validation test above: a safety-guard violation is a config
+	// mistake, not a broker failure, and must reach the caller as the same NodeOperationError
+	// — never relabelled NodeApiError by the catch block's generic branch.
+	const { NodeOperationError } = await import('n8n-workflow');
+	const node = new CapitalCom();
+	const ctx = fakeExecute({
+		// Size 3 trips the Max Size Guard (maxSize: 2) inside enforceSafety before any
+		// HTTP request is made, so no httpRequest script is needed here.
+		params: {
+			resource: 'position',
+			operation: 'preview',
+			epic: 'GOLD',
+			direction: 'BUY',
+			size: 3,
+			maxSize: 2,
+			stopsLimits: {},
+		},
+		credentials: { apiKey: 'K', identifier: 'me@example.com', password: 'p', environment: 'demo' },
+	});
+	await expect(node.execute.call(ctx)).rejects.toThrow(NodeOperationError);
+	try {
+		await node.execute.call(ctx);
+	} catch (error) {
+		expect(error).toBeInstanceOf(NodeOperationError);
+		if (error instanceof Error) {
+			expect(error.message).toContain('above the Max Size Guard');
 		}
 	}
 });

@@ -1,5 +1,6 @@
 import { NodeOperationError, type IDataObject, type IExecuteFunctions, type INodeProperties } from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
+import { simplifyTransaction } from '../simplify';
 
 export const accountOperations: INodeProperties = {
 	displayName: 'Operation',
@@ -10,8 +11,8 @@ export const accountOperations: INodeProperties = {
 	options: [
 		{ name: 'Activity History', value: 'activityHistory', action: 'Get account activity history' },
 		{ name: 'Demo Top-Up', value: 'demoTopup', action: 'Top up the demo account balance' },
+		{ name: 'Get Many', value: 'list', action: 'Get many accounts' },
 		{ name: 'Get Preferences', value: 'getPreferences', action: 'Get account preferences' },
-		{ name: 'List', value: 'list', action: 'List accounts' },
 		{ name: 'Set Preferences', value: 'setPreferences', action: 'Set account preferences' },
 		{ name: 'Transaction History', value: 'transactionHistory', action: 'Get transaction history' },
 	],
@@ -106,6 +107,15 @@ export const accountFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['account'], operation: ['transactionHistory'] } },
 		description: 'Filter by transaction type (e.g. DEPOSIT, WITHDRAWAL). Leave empty to omit.',
 	},
+	{
+		displayName: 'Simplify',
+		name: 'simple',
+		type: 'boolean',
+		default: false,
+		description:
+			'Whether to return a simplified version of the response instead of the raw data',
+		displayOptions: { show: { resource: ['account'], operation: ['transactionHistory'] } },
+	},
 ];
 
 export async function executeAccount(
@@ -136,7 +146,9 @@ export async function executeAccount(
 					);
 				}
 				if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-					throw new Error('Leverages must be a JSON object, e.g. {"CURRENCIES": 20}');
+					throw new NodeOperationError(ctx.getNode(), 'Leverages must be a JSON object', {
+						description: 'Set the Leverages field to JSON such as {"CURRENCIES": 20}.',
+					});
 				}
 				body.leverages = parsed;
 			}
@@ -145,7 +157,14 @@ export async function executeAccount(
 		case 'demoTopup': {
 			const creds = await ctx.getCredentials('capitalComApi');
 			if (creds.environment !== 'demo') {
-				throw new Error('Demo top-up is only available on the demo environment');
+				throw new NodeOperationError(
+					ctx.getNode(),
+					'Demo top-up is only available on a demo account',
+					{
+						description:
+							'Switch the Capital.com credential Environment to Demo, or remove this operation.',
+					},
+				);
 			}
 			const amount = ctx.getNodeParameter('amount', i) as number;
 			return client.request('POST', '/accounts/topUp', { body: { amount } });
@@ -169,9 +188,16 @@ export async function executeAccount(
 			if (type) qs.type = type;
 			if (from) qs.from = from;
 			if (to) qs.to = to;
-			return client.request('GET', '/history/transactions', { qs });
+			const data = (await client.request('GET', '/history/transactions', { qs })) as IDataObject;
+			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+				const transactions = Array.isArray(data.transactions) ? data.transactions : [];
+				return { transactions: (transactions as IDataObject[]).map(simplifyTransaction) };
+			}
+			return data;
 		}
 		default:
-			throw new Error(`Unknown account operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported account operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

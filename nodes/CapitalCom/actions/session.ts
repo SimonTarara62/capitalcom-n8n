@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import { NodeOperationError, type IExecuteFunctions, type INodeProperties } from 'n8n-workflow';
 import type { CapitalClient } from '../../../transport';
 
 /** The slice of CapitalClient the resource dispatchers need (keeps them test-fakeable). */
@@ -21,13 +21,22 @@ export const sessionOperations: INodeProperties = {
 
 export const sessionFields: INodeProperties[] = [
 	{
-		displayName: 'Account ID',
+		displayName: 'Account',
 		name: 'accountId',
-		type: 'string',
+		type: 'resourceLocator',
 		required: true,
-		default: '',
+		default: { mode: 'list', value: '' },
 		displayOptions: { show: { resource: ['session'], operation: ['switchAccount'] } },
 		description: 'The account ID to switch to',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: { searchListMethod: 'searchAccounts', searchable: true },
+			},
+			{ displayName: 'By ID', name: 'id', type: 'string', placeholder: 'e.g. 123456789' },
+		],
 	},
 ];
 
@@ -45,8 +54,12 @@ export async function executeSession(
 		case 'getDetails':
 			return client.request('GET', '/session');
 		case 'switchAccount':
-			return client.switchAccount(ctx.getNodeParameter('accountId', i) as string);
+			return client.switchAccount(
+				ctx.getNodeParameter('accountId', i, '', { extractValue: true }) as string,
+			);
 		default:
-			throw new Error(`Unknown session operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported session operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }
