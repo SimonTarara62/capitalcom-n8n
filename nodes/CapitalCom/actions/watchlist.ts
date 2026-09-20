@@ -29,15 +29,24 @@ export const watchlistFields: INodeProperties[] = [
 		description: 'Name of the new watchlist',
 	},
 	{
-		displayName: 'Watchlist ID',
+		displayName: 'Watchlist',
 		name: 'watchlistId',
-		type: 'string',
+		type: 'resourceLocator',
 		required: true,
-		default: '',
+		default: { mode: 'list', value: '' },
 		displayOptions: {
 			show: { resource: ['watchlist'], operation: ['get', 'addMarket', 'removeMarket', 'delete'] },
 		},
 		description: 'The watchlist to act on',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: { searchListMethod: 'searchWatchlists', searchable: true },
+			},
+			{ displayName: 'By ID', name: 'id', type: 'string', placeholder: 'e.g. 123456789' },
+		],
 	},
 	{
 		displayName: 'EPIC',
@@ -61,7 +70,7 @@ export async function executeWatchlist(
 		case 'list':
 			return client.request('GET', '/watchlists');
 		case 'get': {
-			const id = ctx.getNodeParameter('watchlistId', i) as string;
+			const id = ctx.getNodeParameter('watchlistId', i, '', { extractValue: true }) as string;
 			return client.request('GET', `/watchlists/${encodeURIComponent(id)}`);
 		}
 		case 'create': {
@@ -69,12 +78,12 @@ export async function executeWatchlist(
 			return client.request('POST', '/watchlists', { body: { name } });
 		}
 		case 'addMarket': {
-			const id = ctx.getNodeParameter('watchlistId', i) as string;
+			const id = ctx.getNodeParameter('watchlistId', i, '', { extractValue: true }) as string;
 			const epic = ctx.getNodeParameter('epic', i) as string;
 			return client.request('PUT', `/watchlists/${encodeURIComponent(id)}`, { body: { epic } });
 		}
 		case 'removeMarket': {
-			const id = ctx.getNodeParameter('watchlistId', i) as string;
+			const id = ctx.getNodeParameter('watchlistId', i, '', { extractValue: true }) as string;
 			const epic = ctx.getNodeParameter('epic', i) as string;
 			await client.request(
 				'DELETE',
@@ -83,7 +92,7 @@ export async function executeWatchlist(
 			return { deleted: true };
 		}
 		case 'delete': {
-			const id = ctx.getNodeParameter('watchlistId', i) as string;
+			const id = ctx.getNodeParameter('watchlistId', i, '', { extractValue: true }) as string;
 			await client.request('DELETE', `/watchlists/${encodeURIComponent(id)}`);
 			return { deleted: true };
 		}

@@ -61,3 +61,19 @@ it('Remove Market → DELETE with real body still returns { deleted: true } (sta
 	expect(client.calls[0].args.slice(0, 2)).toEqual(['DELETE', '/watchlists/w1/GOLD']);
 	expect(out).toEqual({ deleted: true });
 });
+
+// Guards the resource-locator conversion: watchlistId is now read with `extractValue: true`
+// (see nodes/CapitalCom/actions/watchlist.ts). A resource-locator-shaped value must resolve
+// to the identical request as the plain-string value it replaces — if a call site forgot
+// `extractValue`, `id` would be the whole `{ mode, value }` object and the URL would come out
+// as `/watchlists/[object%20Object]`, a malformed request against the live broker API.
+it('Get with a resource-locator-shaped watchlistId produces the same URL as a plain string (extractValue guard)', async () => {
+	const plain = run({ operation: 'get', watchlistId: 'w1' });
+	await plain.promise;
+
+	const locator = run({ operation: 'get', watchlistId: { mode: 'list', value: 'w1' } });
+	await locator.promise;
+
+	expect(locator.client.calls[0].args.slice(0, 2)).toEqual(['GET', '/watchlists/w1']);
+	expect(locator.client.calls[0].args.slice(0, 2)).toEqual(plain.client.calls[0].args.slice(0, 2));
+});

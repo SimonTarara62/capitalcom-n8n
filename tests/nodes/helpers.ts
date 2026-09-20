@@ -36,8 +36,28 @@ export function fakeExecute(opts: FakeExecuteOptions): IExecuteFunctions {
 
 	return {
 		getInputData: () => items,
-		getNodeParameter: (name: string, _i: number, fallback?: unknown) =>
-			name in opts.params ? opts.params[name] : fallback,
+		// Mirrors real n8n's extractValue behaviour for resourceLocator params: when the
+		// stored value is the `{ mode, value }` shape and extractValue is requested, unwrap
+		// it to the inner value. Plain strings (every other test in this suite) pass through
+		// unchanged, so this is a no-op for callers that don't use resourceLocator params.
+		getNodeParameter: (
+			name: string,
+			_i: number,
+			fallback?: unknown,
+			options?: { extractValue?: boolean },
+		) => {
+			if (!(name in opts.params)) return fallback;
+			const value = opts.params[name];
+			if (
+				options?.extractValue &&
+				value !== null &&
+				typeof value === 'object' &&
+				'value' in (value as Record<string, unknown>)
+			) {
+				return (value as { value: unknown }).value;
+			}
+			return value;
+		},
 		getCredentials: async () => opts.credentials ?? {},
 		getWorkflowStaticData: () => staticData,
 		continueOnFail: () => opts.continueOnFail ?? false,

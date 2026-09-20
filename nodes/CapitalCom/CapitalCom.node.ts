@@ -12,6 +12,7 @@ import {
 } from 'n8n-workflow';
 
 import { createClient } from './transport';
+import { searchAccounts, searchWatchlists, searchEpics } from './search';
 import { executeAccount, accountFields, accountOperations } from './actions/account';
 import { executeMarket, marketFields, marketOperations } from './actions/market';
 import { executeSession, sessionFields, sessionOperations } from './actions/session';
@@ -85,6 +86,10 @@ export class CapitalCom implements INodeType {
 			confirmationOperations,
 			...confirmationFields,
 		],
+	};
+
+	methods = {
+		listSearch: { searchAccounts, searchWatchlists, searchEpics },
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {

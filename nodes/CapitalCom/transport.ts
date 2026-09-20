@@ -60,9 +60,7 @@ export function makeRequester(ctx: N8nContext): Requester {
 }
 
 /** Build a CapitalClient from the node's credentials, httpRequest helper, and static data. */
-export async function createClient(
-	ctx: IExecuteFunctions | ITriggerFunctions,
-): Promise<CapitalClient> {
+export async function createClient(ctx: N8nContext): Promise<CapitalClient> {
 	const raw = await ctx.getCredentials('capitalComApi');
 	const credentials: CapitalCredentials = {
 		apiKey: raw.apiKey as string,
