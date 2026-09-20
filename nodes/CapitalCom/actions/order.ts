@@ -6,6 +6,7 @@ import {
 } from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 import { enforceSafety, readSafety, safetyFields } from '../safety';
+import { simplifyOrder } from '../simplify';
 import { buildStopsLimits, buildTradeBody } from '../tradeBody';
 import { waitForConfirmation } from './confirmation';
 
@@ -142,6 +143,15 @@ export const orderFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['order'], operation: ['list'] } },
 		description: 'Max number of results to return',
 	},
+	{
+		displayName: 'Simplify',
+		name: 'simple',
+		type: 'boolean',
+		default: false,
+		description:
+			'Whether to return a simplified version of the response instead of the raw data',
+		displayOptions: { show: { resource: ['order'], operation: ['list'] } },
+	},
 	...safetyFields(['create']),
 ];
 
@@ -159,6 +169,9 @@ export async function executeOrder(
 			const workingOrders = Array.isArray(data.workingOrders)
 				? data.workingOrders.slice(0, limit)
 				: [];
+			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+				return { workingOrders: (workingOrders as IDataObject[]).map(simplifyOrder) };
+			}
 			return { ...data, workingOrders };
 		}
 		case 'preview': {

@@ -6,6 +6,7 @@ import {
 } from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 import { enforceSafety, readSafety, safetyFields } from '../safety';
+import { simplifyPosition } from '../simplify';
 import { buildStopsLimits, buildTradeBody } from '../tradeBody';
 import { waitForConfirmation } from './confirmation';
 
@@ -117,6 +118,15 @@ export const positionFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['position'], operation: ['list'] } },
 		description: 'Max number of results to return',
 	},
+	{
+		displayName: 'Simplify',
+		name: 'simple',
+		type: 'boolean',
+		default: false,
+		description:
+			'Whether to return a simplified version of the response instead of the raw data',
+		displayOptions: { show: { resource: ['position'], operation: ['list'] } },
+	},
 	...safetyFields(['open']),
 ];
 
@@ -132,6 +142,9 @@ export async function executePosition(
 			const limit = ctx.getNodeParameter('limit', i, 50) as number;
 			const data = (await client.request('GET', '/positions')) as IDataObject;
 			const positions = Array.isArray(data.positions) ? data.positions.slice(0, limit) : [];
+			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+				return { positions: (positions as IDataObject[]).map(simplifyPosition) };
+			}
 			return { ...data, positions };
 		}
 		case 'get': {

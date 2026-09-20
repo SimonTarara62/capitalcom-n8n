@@ -1,5 +1,6 @@
 import { NodeOperationError, type IDataObject, type IExecuteFunctions, type INodeProperties } from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
+import { simplifyTransaction } from '../simplify';
 
 export const accountOperations: INodeProperties = {
 	displayName: 'Operation',
@@ -106,6 +107,15 @@ export const accountFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['account'], operation: ['transactionHistory'] } },
 		description: 'Filter by transaction type (e.g. DEPOSIT, WITHDRAWAL). Leave empty to omit.',
 	},
+	{
+		displayName: 'Simplify',
+		name: 'simple',
+		type: 'boolean',
+		default: false,
+		description:
+			'Whether to return a simplified version of the response instead of the raw data',
+		displayOptions: { show: { resource: ['account'], operation: ['transactionHistory'] } },
+	},
 ];
 
 export async function executeAccount(
@@ -178,7 +188,12 @@ export async function executeAccount(
 			if (type) qs.type = type;
 			if (from) qs.from = from;
 			if (to) qs.to = to;
-			return client.request('GET', '/history/transactions', { qs });
+			const data = (await client.request('GET', '/history/transactions', { qs })) as IDataObject;
+			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+				const transactions = Array.isArray(data.transactions) ? data.transactions : [];
+				return { transactions: (transactions as IDataObject[]).map(simplifyTransaction) };
+			}
+			return data;
 		}
 		default:
 			throw new NodeOperationError(ctx.getNode(), `Unsupported account operation: ${operation}`, {
