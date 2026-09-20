@@ -33,6 +33,10 @@
     "test": "jest",
     "test:integration": "jest --config jest.integration.config.js"
   },
+  "publishConfig": {
+    "_comment": "REMOVE or set to \"latest\" before publishing the stable 0.3.0. npm refuses to publish a prerelease without an explicit dist-tag, and n8n-node release runs a bare `npm publish`.",
+    "tag": "rc"
+  },
   "files": [
     "dist",
     "LICENSE",
