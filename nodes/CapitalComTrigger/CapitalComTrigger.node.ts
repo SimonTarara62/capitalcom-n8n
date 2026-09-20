@@ -54,14 +54,25 @@ async function sleepUnlessAborted(ms: number, signal: AbortSignal): Promise<bool
 	}
 }
 
-/** The native 'error' event is an ErrorEvent: the detail is on .error, while .message is empty. */
-function describeSocketError(event: unknown): string {
+/**
+ * The native 'error' event is an ErrorEvent: the detail is on .error, while .message is
+ * empty. Empirically (Node v24.11.0), both a refused connection and a DNS failure surface
+ * `.error` as a `TypeError` thrown from undici's internal socket-close path with an empty
+ * `.message` and no `.cause` — so `.message` alone is not a reliable source, and this must
+ * fall back to `.name` (e.g. "TypeError") and finally to `String(cause)` so the returned
+ * string is never empty, for any input including an Error with an empty message, a
+ * non-Error value, `null`, and `undefined`.
+ */
+export function describeSocketError(event: unknown): string {
 	const cause = (event as { error?: unknown } | null | undefined)?.error;
-	if (cause instanceof Error) return cause.message;
+	if (cause instanceof Error) {
+		return cause.message || cause.name || String(cause) || 'no detail available';
+	}
 	if (typeof cause === 'string' && cause) return cause;
 	const message = (event as { message?: unknown } | null | undefined)?.message;
 	if (typeof message === 'string' && message) return message;
-	return cause === undefined || cause === null ? 'no detail available' : String(cause);
+	if (cause === undefined || cause === null) return 'no detail available';
+	return String(cause) || 'no detail available';
 }
 
 /**
@@ -77,7 +88,7 @@ function describeSocketClose(event: unknown): string {
 }
 
 /** Decode a frame's payload. Binary frames arrive as ArrayBuffer once binaryType is set. */
-function decodeFrame(data: unknown): string | null {
+export function decodeFrame(data: unknown): string | null {
 	if (typeof data === 'string') return data;
 	if (data instanceof ArrayBuffer) return textDecoder.decode(data);
 	// TextDecoder accepts any view at runtime; the cast just picks one of its overloads.
@@ -222,10 +233,6 @@ export class CapitalComTrigger implements INodeType {
 			// authenticates every message (cst + securityToken travel in each payload),
 			// so the native WebSocket's inability to set handshake headers is harmless.
 			const conn = new AbortController();
-			if (lifetime.signal.aborted) {
-				conn.abort();
-				return;
-			}
 			// { signal: conn.signal } detaches the chaining listener when this connection
 			// ends, instead of leaving one on lifetime.signal per reconnect forever.
 			lifetime.signal.addEventListener('abort', () => conn.abort(), {

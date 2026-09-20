@@ -1,5 +1,7 @@
 import {
 	CapitalComTrigger,
+	decodeFrame,
+	describeSocketError,
 	PING_INTERVAL_MS,
 } from '../../nodes/CapitalComTrigger/CapitalComTrigger.node';
 import { createClient } from '../../nodes/CapitalCom/transport';
@@ -228,6 +230,11 @@ it('does not leave a live socket when the trigger is torn down mid-login', async
 		releaseLogin({ ensureLoggedIn: async () => ({ cst: 'CST1', xSecurityToken: 'TOK1' }) });
 		await jest.advanceTimersByTimeAsync(100);
 
+		// The real leak-freedom claim: the parked login landing after teardown must not
+		// construct a new socket at all. (The loops below are defence in depth for a
+		// weaker implementation that opens-then-closes instead of never opening.)
+		expect(FakeSocket.instances.length).toBe(countAtTeardown);
+
 		// Either no socket was opened at all, or anything opened was closed at once.
 		const openedAfterTeardown = FakeSocket.instances.slice(countAtTeardown);
 		for (const leaked of openedAfterTeardown) {
@@ -243,4 +250,92 @@ it('does not leave a live socket when the trigger is torn down mid-login', async
 	} finally {
 		jest.useRealTimers();
 	}
+});
+
+describe('describeSocketError', () => {
+	it('returns the message when the error carries a normal, non-empty one', () => {
+		expect(describeSocketError({ error: new Error('boom') })).toBe('boom');
+	});
+
+	it('falls back to the error name when the message is empty (the real undici case)', () => {
+		// Empirically, on Node v24.11.0, a refused connection or DNS failure surfaces
+		// `event.error` as exactly this: a TypeError with an empty message and no cause.
+		expect(describeSocketError({ error: new TypeError() })).toBe('TypeError');
+	});
+
+	it('never returns an empty string even for a name-less, message-less Error', () => {
+		class SilentError extends Error {
+			override name = '';
+		}
+		const result = describeSocketError({ error: new SilentError('') });
+		expect(result).not.toBe('');
+		expect(result.length).toBeGreaterThan(0);
+	});
+
+	it('uses a string cause directly', () => {
+		expect(describeSocketError({ error: 'socket hang up' })).toBe('socket hang up');
+	});
+
+	it('falls back to event.message when there is no usable .error', () => {
+		expect(describeSocketError({ message: 'top-level message' })).toBe('top-level message');
+	});
+
+	it('stringifies a non-Error, non-string cause', () => {
+		expect(describeSocketError({ error: { code: 'ECONNREFUSED' } })).toBe('[object Object]');
+	});
+
+	it('returns a fixed placeholder when there is no detail anywhere', () => {
+		expect(describeSocketError({})).toBe('no detail available');
+		expect(describeSocketError({ error: null })).toBe('no detail available');
+	});
+
+	it('never throws or returns an empty string for null, undefined, or a bare value', () => {
+		const inputs: unknown[] = [
+			null,
+			undefined,
+			{},
+			{ error: null },
+			{ error: undefined },
+			{ error: '' },
+			{ error: new Error('') },
+			{ error: new TypeError() },
+			{ error: 0 },
+			{ error: false },
+			42,
+			'raw-string-event',
+		];
+		for (const input of inputs) {
+			let result: string | undefined;
+			expect(() => {
+				result = describeSocketError(input);
+			}).not.toThrow();
+			expect(typeof result).toBe('string');
+			expect(result).not.toBe('');
+		}
+	});
+});
+
+describe('decodeFrame', () => {
+	const encoder = new TextEncoder();
+
+	it('passes a string frame through unchanged', () => {
+		expect(decodeFrame('hello')).toBe('hello');
+	});
+
+	it('decodes an ArrayBuffer frame to the expected text', () => {
+		const buffer = encoder.encode('from-array-buffer').buffer;
+		expect(decodeFrame(buffer)).toBe('from-array-buffer');
+	});
+
+	it('decodes an ArrayBufferView (e.g. Uint8Array) frame', () => {
+		const view = encoder.encode('from-typed-array');
+		expect(decodeFrame(view)).toBe('from-typed-array');
+	});
+
+	it('drops unsupported inputs instead of throwing', () => {
+		expect(decodeFrame({ not: 'a frame' })).toBeNull();
+		expect(decodeFrame(null)).toBeNull();
+		expect(decodeFrame(undefined)).toBeNull();
+		expect(decodeFrame(42)).toBeNull();
+	});
 });
