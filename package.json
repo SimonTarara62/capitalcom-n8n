@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-capitalcom",
-  "version": "0.3.0-rc.3",
+  "version": "0.3.0-rc.4",
   "description": "Unofficial n8n community node for the Capital.com Open API — market data, accounts, watchlists, trading, and WebSocket streaming.",
   "keywords": [
     "n8n-community-node-package",
