@@ -123,6 +123,12 @@ export class CapitalCom implements INodeType {
 					returnData.push({ json: { error: (error as Error).message }, pairedItem: { item: i } });
 					continue;
 				}
+				// Already an n8n error with the right classification — re-throw so a parameter
+				// problem stays a NodeOperationError instead of being mislabelled as an API failure.
+				if (error instanceof NodeApiError || error instanceof NodeOperationError) {
+					// eslint-disable-next-line @n8n/community-nodes/require-node-api-error
+					throw error;
+				}
 				throw new NodeApiError(this.getNode(), error as JsonObject);
 			}
 		}

@@ -198,3 +198,26 @@ it('shows an unofficial notice and a docs link', () => {
 	expect(node.description.documentationUrl).toContain('github.com/SimonTarara62/capitalcom-n8n');
 	expect(node.description.defaults.name).toBe('Capital.com (Unofficial)');
 });
+
+it('NodeOperationError from parameter validation propagates unchanged (not wrapped as NodeApiError)', async () => {
+	const { NodeOperationError } = await import('n8n-workflow');
+	const node = new CapitalCom();
+	const ctx = fakeExecute({
+		// Invalid JSON in leverages field triggers NodeOperationError from executeAccount
+		params: { resource: 'account', operation: 'setPreferences', leverages: 'not-json' },
+		credentials: { apiKey: 'K', identifier: 'me@example.com', password: 'p', environment: 'demo' },
+		httpRequest: httpScript(),
+	});
+	// Attempt to execute and expect NodeOperationError to be thrown
+	await expect(node.execute.call(ctx)).rejects.toThrow(NodeOperationError);
+	// Verify it's not wrapped in NodeApiError by checking the error class
+	try {
+		await node.execute.call(ctx);
+	} catch (error) {
+		// Should be NodeOperationError, not NodeApiError
+		expect(error).toBeInstanceOf(NodeOperationError);
+		if (error instanceof Error) {
+			expect(error.message).toContain('Leverages must be valid JSON');
+		}
+	}
+});
