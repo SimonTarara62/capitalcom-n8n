@@ -28,7 +28,9 @@ describeIfCreds('integration: read-only demo API', () => {
 
 	it('creates, reads, and deletes a watchlist (round-trip)', async () => {
 		const created = (await client.request('POST', '/watchlists', {
-			body: { name: `n8n-it-${Date.now()}` },
+			// Capital.com rejects a watchlist created with no epics (error.invalid.watchlist),
+			// so seed it with one.
+			body: { name: `n8n-it-${Date.now()}`, epics: ['GOLD'] },
 		})) as { watchlistId?: string };
 		expect(created.watchlistId).toBeTruthy();
 
