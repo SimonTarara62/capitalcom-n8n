@@ -1,8 +1,8 @@
 # n8n-nodes-capitalcom
 
-> **🧪 Beta.** Stable and in real use. Latest stable release is `0.2.0`; a `0.3.0`
-> release candidate (`0.3.0-rc.2`, zero runtime dependencies, requires Node.js ≥ 24) is
-> available under the `rc` dist-tag for early testers — see [Installation](#installation).
+> **🧪 Beta.** Stable and in real use. Latest stable release is `0.3.0` — zero runtime
+> dependencies and requires **Node.js ≥ 24** (matching n8n's own requirement) — see
+> [Installation](#installation) and [Compatibility](#compatibility).
 > It's still `0.x`, so node parameters may change between minor versions — pin a version
 > if you need stability. Trades real money: use a **demo** Capital.com account first, and
 > please [report issues](https://github.com/SimonTarara62/capitalcom-n8n/issues).
@@ -54,8 +54,11 @@ Ready-to-import workflows live in [`examples/`](./examples) — market data, a g
 ## Installation
 
 > **Beta (`0.x`):** node parameters may still change between minor versions.
-> Pin a version (`n8n-nodes-capitalcom@0.2.0` for the latest stable) if you need
+> Pin a version (`n8n-nodes-capitalcom@0.3.0` for the latest stable) if you need
 > stability between updates.
+>
+> **Requires Node.js ≥ 24** (matching n8n's own requirement) — see
+> [Compatibility](#compatibility).
 
 **Community Nodes (self-hosted n8n):** Settings → Community Nodes → Install, enter
 `n8n-nodes-capitalcom`, and confirm. Restart n8n if prompted.
@@ -66,16 +69,7 @@ Ready-to-import workflows live in [`examples/`](./examples) — market data, a g
 npm install n8n-nodes-capitalcom
 ```
 
-This installs `0.2.0` (the current `latest`), which requires n8n with Node.js ≥ 20.15.
-
-**Trying the `0.3.0` release candidate:** raises the Node.js floor to **≥ 24** (matching
-n8n's own requirement) and drops all runtime dependencies — see
-[Compatibility](#compatibility). It's published under the `rc` dist-tag, not `latest`,
-so install it explicitly:
-
-```bash
-npm install n8n-nodes-capitalcom@rc
-```
+This installs `0.3.0` (the current `latest`), which requires n8n running on Node.js ≥ 24.
 
 ## Credentials
 

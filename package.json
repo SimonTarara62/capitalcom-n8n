@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-capitalcom",
-  "version": "0.3.0-rc.5",
+  "version": "0.3.0",
   "description": "Unofficial n8n community node for the Capital.com Open API — market data, accounts, watchlists, trading, and WebSocket streaming.",
   "keywords": [
     "n8n-community-node-package",
@@ -32,10 +32,6 @@
     "release": "n8n-node release",
     "test": "jest",
     "test:integration": "jest --config jest.integration.config.js"
-  },
-  "publishConfig": {
-    "_comment": "REMOVE or set to \"latest\" before publishing the stable 0.3.0. npm refuses to publish a prerelease without an explicit dist-tag, and n8n-node release runs a bare `npm publish`.",
-    "tag": "rc"
   },
   "files": [
     "dist",
