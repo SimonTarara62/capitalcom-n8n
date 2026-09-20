@@ -1,6 +1,7 @@
-import { executeMarket } from '../../nodes/CapitalCom/actions/market';
+import { executeMarket, marketFields } from '../../nodes/CapitalCom/actions/market';
 import { FakeClient, fakeExecute } from './helpers';
 import type { CapitalClientLike } from '../../nodes/CapitalCom/actions/session';
+import type { INodePropertyOptions } from 'n8n-workflow';
 
 function run(params: Record<string, unknown>, responses: Record<string, unknown> = {}) {
 	const client = new FakeClient(responses);
@@ -76,4 +77,23 @@ it('Navigation Node → GET /marketnavigation/{nodeId} with limit', async () => 
 		'/marketnavigation/hierarchy_v1',
 		{ qs: { limit: 10 } },
 	]);
+});
+
+it('Resolution options stay alphabetized by name and keep their exact value set', () => {
+	const resolution = marketFields.find((f) => f.name === 'resolution');
+	const options = resolution?.options as INodePropertyOptions[];
+	expect(options).toBeDefined();
+
+	// Guards the fix for n8n-nodes-base/node-param-options-type-unsorted-items: the scanner
+	// re-lints with inline eslint-disable comments stripped, so this list must be genuinely
+	// alphabetical by `name` (locale compare), not just "shortest to longest".
+	const names = options.map((o) => o.name);
+	const sortedNames = [...names].sort((a, b) => a.localeCompare(b));
+	expect(names).toEqual(sortedNames);
+
+	// A reorder or relabel must never change which values a workflow can select.
+	const values = options.map((o) => o.value).sort();
+	expect(values).toEqual(
+		['DAY', 'HOUR', 'HOUR_4', 'MINUTE', 'MINUTE_15', 'MINUTE_30', 'MINUTE_5', 'WEEK'].sort(),
+	);
 });

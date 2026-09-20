@@ -48,16 +48,19 @@ export const marketFields: INodeProperties[] = [
 		displayName: 'Resolution',
 		name: 'resolution',
 		type: 'options',
-		// Price resolutions are ordered shortest→longest on purpose, not alphabetically.
-		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
+		// Alphabetical by name (required by n8n-nodes-base/node-param-options-type-unsorted-items,
+		// which the verified-node scanner enforces even with inline disables stripped). "Minute 5"
+		// is displayed zero-padded as "Minute 05" so it still alphabetizes before "Minute 15" and
+		// "Minute 30" — otherwise plain alphabetization would put the minute series out of
+		// chronological order. Only the display name is padded; `value` stays `MINUTE_5`.
 		options: [
-			{ name: 'Minute', value: 'MINUTE' },
-			{ name: 'Minute 5', value: 'MINUTE_5' },
-			{ name: 'Minute 15', value: 'MINUTE_15' },
-			{ name: 'Minute 30', value: 'MINUTE_30' },
+			{ name: 'Day', value: 'DAY' },
 			{ name: 'Hour', value: 'HOUR' },
 			{ name: 'Hour 4', value: 'HOUR_4' },
-			{ name: 'Day', value: 'DAY' },
+			{ name: 'Minute', value: 'MINUTE' },
+			{ name: 'Minute 05', value: 'MINUTE_5' },
+			{ name: 'Minute 15', value: 'MINUTE_15' },
+			{ name: 'Minute 30', value: 'MINUTE_30' },
 			{ name: 'Week', value: 'WEEK' },
 		],
 		default: 'MINUTE_15',
