@@ -147,7 +147,7 @@ export const orderFields: INodeProperties[] = [
 		displayName: 'Simplify',
 		name: 'simple',
 		type: 'boolean',
-		default: false,
+		default: true,
 		description:
 			'Whether to return a simplified version of the response instead of the raw data',
 		displayOptions: { show: { resource: ['order'], operation: ['list'] } },
@@ -169,7 +169,7 @@ export async function executeOrder(
 			const workingOrders = Array.isArray(data.workingOrders)
 				? data.workingOrders.slice(0, limit)
 				: [];
-			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+			if (ctx.getNodeParameter('simple', i, true) as boolean) {
 				return { workingOrders: (workingOrders as IDataObject[]).map(simplifyOrder) };
 			}
 			return { ...data, workingOrders };

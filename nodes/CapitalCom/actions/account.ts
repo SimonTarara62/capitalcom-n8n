@@ -111,7 +111,7 @@ export const accountFields: INodeProperties[] = [
 		displayName: 'Simplify',
 		name: 'simple',
 		type: 'boolean',
-		default: false,
+		default: true,
 		description:
 			'Whether to return a simplified version of the response instead of the raw data',
 		displayOptions: { show: { resource: ['account'], operation: ['transactionHistory'] } },
@@ -189,7 +189,7 @@ export async function executeAccount(
 			if (from) qs.from = from;
 			if (to) qs.to = to;
 			const data = (await client.request('GET', '/history/transactions', { qs })) as IDataObject;
-			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+			if (ctx.getNodeParameter('simple', i, true) as boolean) {
 				const transactions = Array.isArray(data.transactions) ? data.transactions : [];
 				return { transactions: (transactions as IDataObject[]).map(simplifyTransaction) };
 			}

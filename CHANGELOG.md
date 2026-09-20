@@ -13,11 +13,11 @@ All notable changes to this project are documented here. The format is based on
   unchanged, so existing workflows keep working.
 - Delete-shaped operations now return `{ "deleted": true }`. Closing a position also keeps the
   response body, because it carries the `dealReference` needed for confirmation polling.
+- **Breaking:** the new **Simplify** option defaults to on, following n8n's convention.
+  Positions, Working Orders, Market search/get and Transaction History now return a simplified
+  response unless you switch Simplify off.
 
 ### Added
-
-- **Simplify** option on Positions, Working Orders, Market search/get and Transaction History.
-  Defaults to off, so existing workflows receive the same raw response as before.
 
 ### Fixed
 

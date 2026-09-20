@@ -129,7 +129,7 @@ export const marketFields: INodeProperties[] = [
 		displayName: 'Simplify',
 		name: 'simple',
 		type: 'boolean',
-		default: false,
+		default: true,
 		description:
 			'Whether to return a simplified version of the response instead of the raw data',
 		displayOptions: { show: { resource: ['market'], operation: ['search', 'get'] } },
@@ -153,7 +153,7 @@ export async function executeMarket(
 			if (epics) qs.epics = epics;
 			const data = (await client.request('GET', '/markets', { qs })) as IDataObject;
 			const markets = Array.isArray(data.markets) ? data.markets.slice(0, limit) : [];
-			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+			if (ctx.getNodeParameter('simple', i, true) as boolean) {
 				return { markets: (markets as IDataObject[]).map(simplifyMarket) };
 			}
 			return { ...data, markets };
@@ -164,7 +164,7 @@ export async function executeMarket(
 				'GET',
 				`/markets/${encodeURIComponent(epic)}`,
 			)) as IDataObject;
-			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+			if (ctx.getNodeParameter('simple', i, true) as boolean) {
 				return simplifyMarket(data);
 			}
 			return data;

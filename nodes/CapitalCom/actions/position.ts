@@ -122,7 +122,7 @@ export const positionFields: INodeProperties[] = [
 		displayName: 'Simplify',
 		name: 'simple',
 		type: 'boolean',
-		default: false,
+		default: true,
 		description:
 			'Whether to return a simplified version of the response instead of the raw data',
 		displayOptions: { show: { resource: ['position'], operation: ['list'] } },
@@ -142,7 +142,7 @@ export async function executePosition(
 			const limit = ctx.getNodeParameter('limit', i, 50) as number;
 			const data = (await client.request('GET', '/positions')) as IDataObject;
 			const positions = Array.isArray(data.positions) ? data.positions.slice(0, limit) : [];
-			if (ctx.getNodeParameter('simple', i, false) as boolean) {
+			if (ctx.getNodeParameter('simple', i, true) as boolean) {
 				return { positions: (positions as IDataObject[]).map(simplifyPosition) };
 			}
 			return { ...data, positions };

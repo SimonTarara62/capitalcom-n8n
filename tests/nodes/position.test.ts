@@ -18,7 +18,7 @@ it('List → GET /positions, truncates to limit', async () => {
 	expect(out.positions).toHaveLength(1);
 });
 
-it('List with Simplify off (default) → returns the raw response byte-identical to before', async () => {
+it('List with Simplify off → returns the raw response byte-identical to before', async () => {
 	const raw = {
 		positions: [
 			{
@@ -30,7 +30,7 @@ it('List with Simplify off (default) → returns the raw response byte-identical
 			},
 		],
 	};
-	const { promise } = run({ operation: 'list', limit: 50 }, { 'GET /positions': raw });
+	const { promise } = run({ operation: 'list', limit: 50, simple: false }, { 'GET /positions': raw });
 	await expect(promise).resolves.toEqual(raw);
 });
 

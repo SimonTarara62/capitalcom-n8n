@@ -19,7 +19,7 @@ it('Search → GET /markets with qs, truncates markets to limit', async () => {
 	expect(client.calls[0].args).toEqual(['GET', '/markets', { qs: { searchTerm: 'gold' } }]);
 });
 
-it('Search with Simplify off (default) → returns the raw response byte-identical to before', async () => {
+it('Search with Simplify off → returns the raw response byte-identical to before', async () => {
 	const raw = {
 		markets: [
 			{
@@ -30,7 +30,7 @@ it('Search with Simplify off (default) → returns the raw response byte-identic
 		],
 	};
 	const { promise } = run(
-		{ operation: 'search', searchTerm: '', epics: '', limit: 50 },
+		{ operation: 'search', searchTerm: '', epics: '', limit: 50, simple: false },
 		{ 'GET /markets': raw },
 	);
 	await expect(promise).resolves.toEqual(raw);
@@ -66,13 +66,13 @@ it('Get → GET /markets/{epic} (url-encoded)', async () => {
 	expect(client.calls[0].args.slice(0, 2)).toEqual(['GET', '/markets/GOLD']);
 });
 
-it('Get with Simplify off (default) → returns the raw response byte-identical to before', async () => {
+it('Get with Simplify off → returns the raw response byte-identical to before', async () => {
 	const raw = {
 		instrument: { epic: 'SILVER', name: 'Silver', type: 'COMMODITIES', lotSize: 1 },
 		dealingRules: { minDealSize: { unit: 'POINTS', value: 0.1 } },
 		snapshot: { marketStatus: 'TRADEABLE', bid: 24.2, offer: 24.22, high: 24.4, low: 24.19 },
 	};
-	const { promise } = run({ operation: 'get', epic: 'SILVER' }, { 'GET /markets/SILVER': raw });
+	const { promise } = run({ operation: 'get', epic: 'SILVER', simple: false }, { 'GET /markets/SILVER': raw });
 	await expect(promise).resolves.toEqual(raw);
 });
 

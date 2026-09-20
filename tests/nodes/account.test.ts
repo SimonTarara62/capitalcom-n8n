@@ -124,7 +124,7 @@ it('Transaction History → GET /history/transactions with qs', async () => {
 	]);
 });
 
-it('Transaction History with Simplify off (default) → returns the raw response byte-identical to before', async () => {
+it('Transaction History with Simplify off → returns the raw response byte-identical to before', async () => {
 	const raw = {
 		transactions: [
 			{
@@ -134,7 +134,7 @@ it('Transaction History with Simplify off (default) → returns the raw response
 		],
 	};
 	const { promise } = run(
-		{ operation: 'transactionHistory', lastPeriod: 100, transactionType: '', fromDate: '', toDate: '' },
+		{ operation: 'transactionHistory', lastPeriod: 100, transactionType: '', fromDate: '', toDate: '', simple: false },
 		{ responses: { 'GET /history/transactions': raw } },
 	);
 	await expect(promise).resolves.toEqual(raw);
