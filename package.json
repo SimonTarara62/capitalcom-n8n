@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-capitalcom",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Unofficial n8n community node for the Capital.com Open API — market data, accounts, watchlists, trading, and WebSocket streaming.",
   "keywords": [
     "n8n-community-node-package",
@@ -14,7 +14,7 @@
   "homepage": "https://github.com/SimonTarara62/capitalcom-n8n",
   "author": {
     "name": "Simon Tarara",
-    "email": "33222802+SimonTarara62@users.noreply.github.com"
+    "email": "simon.tarara@gmail.com"
   },
   "repository": {
     "type": "git",

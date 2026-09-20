@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.1] - 2026-09-20
+
+### Changed
+
+- `author.email` now uses a deliverable address so the n8n Creator Portal can send its
+  ownership-verification token. The previous GitHub `noreply` alias cannot receive mail.
+  This address was already published in the package's npm maintainer record.
+
 ## [0.3.0] - 2026-09-20 — Beta
 
 ### Breaking changes
