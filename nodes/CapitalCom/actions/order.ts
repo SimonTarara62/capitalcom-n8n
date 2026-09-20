@@ -1,4 +1,9 @@
-import type { IDataObject, IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import {
+	NodeOperationError,
+	type IDataObject,
+	type IExecuteFunctions,
+	type INodeProperties,
+} from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 import { enforceSafety, readSafety, safetyFields } from '../safety';
 import { buildStopsLimits, buildTradeBody } from '../tradeBody';
@@ -177,6 +182,8 @@ export async function executeOrder(
 			return client.request('DELETE', `/workingorders/${encodeURIComponent(dealId)}`);
 		}
 		default:
-			throw new Error(`Unknown order operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported order operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

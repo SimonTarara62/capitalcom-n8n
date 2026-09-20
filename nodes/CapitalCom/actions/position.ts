@@ -1,4 +1,9 @@
-import type { IDataObject, IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import {
+	NodeOperationError,
+	type IDataObject,
+	type IExecuteFunctions,
+	type INodeProperties,
+} from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 import { enforceSafety, readSafety, safetyFields } from '../safety';
 import { buildStopsLimits, buildTradeBody } from '../tradeBody';
@@ -155,6 +160,8 @@ export async function executePosition(
 			return { ...body, deleted: true };
 		}
 		default:
-			throw new Error(`Unknown position operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported position operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

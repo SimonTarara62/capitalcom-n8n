@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import { NodeOperationError, type IExecuteFunctions, type INodeProperties } from 'n8n-workflow';
 import type { CapitalClient } from '../../../transport';
 
 /** The slice of CapitalClient the resource dispatchers need (keeps them test-fakeable). */
@@ -47,6 +47,8 @@ export async function executeSession(
 		case 'switchAccount':
 			return client.switchAccount(ctx.getNodeParameter('accountId', i) as string);
 		default:
-			throw new Error(`Unknown session operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported session operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

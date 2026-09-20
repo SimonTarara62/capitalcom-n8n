@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import { NodeOperationError, type IExecuteFunctions, type INodeProperties } from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 
 export const watchlistOperations: INodeProperties = {
@@ -88,6 +88,8 @@ export async function executeWatchlist(
 			return { deleted: true };
 		}
 		default:
-			throw new Error(`Unknown watchlist operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported watchlist operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

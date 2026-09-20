@@ -1,4 +1,10 @@
-import { sleep as n8nSleep, type IDataObject, type IExecuteFunctions, type INodeProperties } from 'n8n-workflow';
+import {
+	sleep as n8nSleep,
+	NodeOperationError,
+	type IDataObject,
+	type IExecuteFunctions,
+	type INodeProperties,
+} from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 
 export const confirmationOperations: INodeProperties = {
@@ -85,6 +91,10 @@ export async function executeConfirmation(
 			return waitForConfirmation(client, dealReference, { timeoutMs });
 		}
 		default:
-			throw new Error(`Unknown confirmation operation: ${operation}`);
+			throw new NodeOperationError(
+				ctx.getNode(),
+				`Unsupported confirmation operation: ${operation}`,
+				{ description: 'Pick one of the operations offered in the Operation dropdown.' },
+			);
 	}
 }

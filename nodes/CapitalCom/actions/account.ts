@@ -136,7 +136,9 @@ export async function executeAccount(
 					);
 				}
 				if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-					throw new Error('Leverages must be a JSON object, e.g. {"CURRENCIES": 20}');
+					throw new NodeOperationError(ctx.getNode(), 'Leverages must be a JSON object', {
+						description: 'Set the Leverages field to JSON such as {"CURRENCIES": 20}.',
+					});
 				}
 				body.leverages = parsed;
 			}
@@ -145,7 +147,14 @@ export async function executeAccount(
 		case 'demoTopup': {
 			const creds = await ctx.getCredentials('capitalComApi');
 			if (creds.environment !== 'demo') {
-				throw new Error('Demo top-up is only available on the demo environment');
+				throw new NodeOperationError(
+					ctx.getNode(),
+					'Demo top-up is only available on a demo account',
+					{
+						description:
+							'Switch the Capital.com credential Environment to Demo, or remove this operation.',
+					},
+				);
 			}
 			const amount = ctx.getNodeParameter('amount', i) as number;
 			return client.request('POST', '/accounts/topUp', { body: { amount } });
@@ -172,6 +181,8 @@ export async function executeAccount(
 			return client.request('GET', '/history/transactions', { qs });
 		}
 		default:
-			throw new Error(`Unknown account operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported account operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

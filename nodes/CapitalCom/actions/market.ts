@@ -1,4 +1,9 @@
-import type { IDataObject, IExecuteFunctions, INodeProperties } from 'n8n-workflow';
+import {
+	NodeOperationError,
+	type IDataObject,
+	type IExecuteFunctions,
+	type INodeProperties,
+} from 'n8n-workflow';
 import type { CapitalClientLike } from './session';
 
 export const marketOperations: INodeProperties = {
@@ -163,7 +168,9 @@ export async function executeMarket(
 				.map((s) => s.trim())
 				.filter(Boolean);
 			if (ids.length === 0) {
-				throw new Error('At least one market ID is required');
+				throw new NodeOperationError(ctx.getNode(), 'No market IDs were given', {
+					description: 'Add at least one EPIC to the Market IDs field, e.g. GOLD.',
+				});
 			}
 			if (ids.length === 1) {
 				return client.request('GET', `/clientsentiment/${encodeURIComponent(ids[0])}`);
@@ -180,6 +187,8 @@ export async function executeMarket(
 			return client.request('GET', `/marketnavigation/${encodeURIComponent(nodeId)}`, { qs });
 		}
 		default:
-			throw new Error(`Unknown market operation: ${operation}`);
+			throw new NodeOperationError(ctx.getNode(), `Unsupported market operation: ${operation}`, {
+				description: 'Pick one of the operations offered in the Operation dropdown.',
+			});
 	}
 }

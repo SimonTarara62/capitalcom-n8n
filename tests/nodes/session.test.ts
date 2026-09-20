@@ -38,5 +38,5 @@ it('Switch Account → client.switchAccount(accountId)', async () => {
 
 it('throws on an unknown operation', async () => {
 	const { promise } = run('bogus');
-	await expect(promise).rejects.toThrow(/unknown session operation/i);
+	await expect(promise).rejects.toThrow(/unsupported session operation/i);
 });
