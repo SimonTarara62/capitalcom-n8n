@@ -10,8 +10,8 @@ export const accountOperations: INodeProperties = {
 	options: [
 		{ name: 'Activity History', value: 'activityHistory', action: 'Get account activity history' },
 		{ name: 'Demo Top-Up', value: 'demoTopup', action: 'Top up the demo account balance' },
+		{ name: 'Get Many', value: 'list', action: 'Get many accounts' },
 		{ name: 'Get Preferences', value: 'getPreferences', action: 'Get account preferences' },
-		{ name: 'List', value: 'list', action: 'List accounts' },
 		{ name: 'Set Preferences', value: 'setPreferences', action: 'Set account preferences' },
 		{ name: 'Transaction History', value: 'transactionHistory', action: 'Get transaction history' },
 	],

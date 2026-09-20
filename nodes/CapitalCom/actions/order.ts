@@ -14,7 +14,7 @@ export const orderOperations: INodeProperties = {
 		{ name: 'Amend', value: 'amend', action: 'Amend a working order' },
 		{ name: 'Cancel', value: 'cancel', action: 'Cancel a working order' },
 		{ name: 'Create', value: 'create', action: 'Create a working order' },
-		{ name: 'List', value: 'list', action: 'List working orders' },
+		{ name: 'Get Many', value: 'list', action: 'Get many working orders' },
 		{ name: 'Preview', value: 'preview', action: 'Preview a working order without sending' },
 	],
 	default: 'list',

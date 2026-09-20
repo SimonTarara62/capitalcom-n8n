@@ -12,7 +12,7 @@ export const watchlistOperations: INodeProperties = {
 		{ name: 'Create', value: 'create', action: 'Create a watchlist' },
 		{ name: 'Delete', value: 'delete', action: 'Delete a watchlist' },
 		{ name: 'Get', value: 'get', action: 'Get a watchlist' },
-		{ name: 'List', value: 'list', action: 'List watchlists' },
+		{ name: 'Get Many', value: 'list', action: 'Get many watchlists' },
 		{ name: 'Remove Market', value: 'removeMarket', action: 'Remove a market from a watchlist' },
 	],
 	default: 'list',
@@ -76,16 +76,16 @@ export async function executeWatchlist(
 		case 'removeMarket': {
 			const id = ctx.getNodeParameter('watchlistId', i) as string;
 			const epic = ctx.getNodeParameter('epic', i) as string;
-			const body = await client.request(
+			await client.request(
 				'DELETE',
 				`/watchlists/${encodeURIComponent(id)}/${encodeURIComponent(epic)}`,
 			);
-			return body || { status: 'removed' };
+			return { deleted: true };
 		}
 		case 'delete': {
 			const id = ctx.getNodeParameter('watchlistId', i) as string;
-			const body = await client.request('DELETE', `/watchlists/${encodeURIComponent(id)}`);
-			return body || { status: 'deleted' };
+			await client.request('DELETE', `/watchlists/${encodeURIComponent(id)}`);
+			return { deleted: true };
 		}
 		default:
 			throw new Error(`Unknown watchlist operation: ${operation}`);

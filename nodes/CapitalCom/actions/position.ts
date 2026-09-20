@@ -14,7 +14,7 @@ export const positionOperations: INodeProperties = {
 		{ name: 'Amend', value: 'amend', action: 'Amend a position' },
 		{ name: 'Close', value: 'close', action: 'Close a position' },
 		{ name: 'Get', value: 'get', action: 'Get a position' },
-		{ name: 'List', value: 'list', action: 'List positions' },
+		{ name: 'Get Many', value: 'list', action: 'Get many positions' },
 		{ name: 'Open', value: 'open', action: 'Open a position' },
 		{ name: 'Preview', value: 'preview', action: 'Preview a position without sending' },
 	],
@@ -148,7 +148,11 @@ export async function executePosition(
 		}
 		case 'close': {
 			const dealId = ctx.getNodeParameter('dealId', i) as string;
-			return client.request('DELETE', `/positions/${encodeURIComponent(dealId)}`);
+			const body = (await client.request(
+				'DELETE',
+				`/positions/${encodeURIComponent(dealId)}`,
+			)) as IDataObject;
+			return { ...body, deleted: true };
 		}
 		default:
 			throw new Error(`Unknown position operation: ${operation}`);
