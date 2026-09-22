@@ -25,6 +25,11 @@ updates:
       # breaking decision, not something to take from an automated PR.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # TypeScript 7 is the Go rewrite and currently fails `npm run build`.
+      # Moving to it is a planned migration gated on ts-jest, @n8n/node-cli and
+      # typescript-eslint supporting it — not an automated bump. See PR #6.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: "/"
