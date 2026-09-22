@@ -1,0 +1,36 @@
+# Keeps the build toolchain and CI actions current.
+#
+# NOTE: this package ships with ZERO runtime dependencies — package.json has no
+# `dependencies` key at all, which is a hard requirement for n8n verified community
+# nodes. Dependabot here only ever touches devDependencies and GitHub Actions pins,
+# so it cannot reintroduce a runtime dependency.
+
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # One PR per week for the whole toolchain rather than a PR per package.
+      dev-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Node 24 is the supported floor; a major bump here is a deliberate,
+      # breaking decision, not something to take from an automated PR.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"

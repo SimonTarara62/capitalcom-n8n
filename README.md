@@ -1,7 +1,7 @@
 # n8n-nodes-capitalcom
 
-> **🧪 Beta.** Stable and in real use. Latest stable release is `0.3.0` — zero runtime
-> dependencies and requires **Node.js ≥ 24** (matching n8n's own requirement) — see
+> **🧪 Beta.** Stable and in real use. **Zero runtime dependencies**, and requires
+> **Node.js ≥ 24** (matching n8n's own requirement) — see
 > [Installation](#installation) and [Compatibility](#compatibility).
 > It's still `0.x`, so node parameters may change between minor versions — pin a version
 > if you need stability. Trades real money: use a **demo** Capital.com account first, and
@@ -10,7 +10,7 @@
 > **Unofficial.** Independent community project — not affiliated with, endorsed by, or
 > supported by Capital.com.
 
-[![npm version](https://img.shields.io/npm/v/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![status: beta](https://img.shields.io/badge/status-beta-blue.svg)](#) [![CI](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml/badge.svg)](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![npm downloads](https://img.shields.io/npm/dm/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![node](https://img.shields.io/node/v/n8n-nodes-capitalcom.svg)](#compatibility) [![runtime dependencies](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen.svg)](#compatibility) [![status: beta](https://img.shields.io/badge/status-beta-blue.svg)](#installation) [![CI](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml/badge.svg)](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 An [n8n](https://n8n.io) community node for the **Capital.com Open API** — market data,
 accounts, watchlists, and trading (positions & working orders), plus a WebSocket **Trigger**
@@ -36,7 +36,8 @@ n8n? See that project.
 I use this node against the live Capital.com API and keep it current as the API
 evolves. It's MIT-licensed and the source is public — **issues and pull requests are
 welcome**. See [CONTRIBUTING](./CONTRIBUTING.md) and start a thread in
-[Discussions](https://github.com/SimonTarara62/capitalcom-n8n/discussions).
+[Discussions](https://github.com/SimonTarara62/capitalcom-n8n/discussions) — or say hello in the
+[n8n community forum thread](https://community.n8n.io/t/community-node-capital-com-unofficial-trading-market-data-live-streaming/301857).
 
 ## Example workflows
 
@@ -54,8 +55,9 @@ Ready-to-import workflows live in [`examples/`](./examples) — market data, a g
 ## Installation
 
 > **Beta (`0.x`):** node parameters may still change between minor versions.
-> Pin a version (`n8n-nodes-capitalcom@0.3.0` for the latest stable) if you need
-> stability between updates.
+> Pin an exact version (`npm install n8n-nodes-capitalcom@<version>`) if you need
+> stability between updates — see
+> [Releases](https://github.com/SimonTarara62/capitalcom-n8n/releases) for the current one.
 >
 > **Requires Node.js ≥ 24** (matching n8n's own requirement) — see
 > [Compatibility](#compatibility).
@@ -69,7 +71,7 @@ Ready-to-import workflows live in [`examples/`](./examples) — market data, a g
 npm install n8n-nodes-capitalcom
 ```
 
-This installs `0.3.0` (the current `latest`), which requires n8n running on Node.js ≥ 24.
+This installs the current `latest`, which requires n8n running on Node.js ≥ 24.
 
 ## Credentials
 
