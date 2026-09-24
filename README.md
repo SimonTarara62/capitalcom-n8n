@@ -10,7 +10,7 @@
 > **Unofficial.** Independent community project — not affiliated with, endorsed by, or
 > supported by Capital.com.
 
-[![npm version](https://img.shields.io/npm/v/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![npm downloads](https://img.shields.io/npm/dm/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![node](https://img.shields.io/node/v/n8n-nodes-capitalcom.svg)](#compatibility) [![runtime dependencies](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen.svg)](#compatibility) [![status: beta](https://img.shields.io/badge/status-beta-blue.svg)](#installation) [![CI](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml/badge.svg)](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![npm downloads](https://img.shields.io/npm/dm/n8n-nodes-capitalcom.svg)](https://www.npmjs.com/package/n8n-nodes-capitalcom) [![node](https://img.shields.io/node/v/n8n-nodes-capitalcom.svg)](#compatibility) [![runtime dependencies](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen.svg)](#compatibility) [![n8n verified community node](https://img.shields.io/badge/n8n-verified%20community%20node-EA4B71.svg)](#installation) [![status: beta](https://img.shields.io/badge/status-beta-blue.svg)](#installation) [![CI](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml/badge.svg)](https://github.com/SimonTarara62/capitalcom-n8n/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 An [n8n](https://n8n.io) community node for the **Capital.com Open API** — market data,
 accounts, watchlists, and trading (positions & working orders), plus a WebSocket **Trigger**
@@ -61,6 +61,11 @@ Ready-to-import workflows live in [`examples/`](./examples) — market data, a g
 >
 > **Requires Node.js ≥ 24** (matching n8n's own requirement) — see
 > [Compatibility](#compatibility).
+
+**From the n8n editor (recommended):** this is a **verified community node**, so on an
+up-to-date n8n you can open the nodes panel, search for **Capital.com (Unofficial)**, and
+install it from there. Verification means n8n reviewed the package; it is still an
+unofficial community project, not a Capital.com or n8n product.
 
 **Community Nodes (self-hosted n8n):** Settings → Community Nodes → Install, enter
 `n8n-nodes-capitalcom`, and confirm. Restart n8n if prompted.
